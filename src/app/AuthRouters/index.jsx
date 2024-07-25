@@ -41,7 +41,7 @@ const Page = () => {
                     backgroundColor: 'rgba(0, 0, 0,0.65)',
                     backdropFilter: 'blur(4px)',
                 }}
-                subTitle='全球最大的代码托管平台'
+                subTitle="The world's largest code hosting platform"
                 activityConfig={{
                     style: {
                         boxShadow: '0px 0px 8px rgba(0, 0, 0, 0.2)',
@@ -50,8 +50,8 @@ const Page = () => {
                         backgroundColor: 'rgba(255,255,255,0.25)',
                         backdropFilter: 'blur(4px)',
                     },
-                    title: '活动标题，可配置图片',
-                    subTitle: '活动介绍说明文字',
+                    title: 'Event title, configurable image',
+                    subTitle: 'Event description text',
                     action: (
                         <Button
                             size='large'
@@ -61,7 +61,7 @@ const Page = () => {
                                 color: token.colorPrimary,
                                 width: 120,
                             }}>
-                            去看看
+                            Check it out
                         </Button>
                     ),
                 }}
@@ -80,7 +80,7 @@ const Page = () => {
                                     fontWeight: 'normal',
                                     fontSize: 14,
                                 }}>
-                                其他登录方式
+                                Other login methods
                             </span>
                         </Divider>
                         <Space align='center' size={24}>
@@ -139,8 +139,8 @@ const Page = () => {
                     centered
                     activeKey={loginType}
                     onChange={(activeKey) => setLoginType(activeKey)}>
-                    <Tabs.TabPane key={'account'} tab={'账号密码登录'} />
-                    <Tabs.TabPane key={'phone'} tab={'手机号登录'} />
+                    <Tabs.TabPane key={'account'} tab={'Account Login'} />
+                    <Tabs.TabPane key={'phone'} tab={'Phone Login'} />
                 </Tabs>
                 {loginType === 'account' && (
                     <>
@@ -157,11 +157,11 @@ const Page = () => {
                                     />
                                 ),
                             }}
-                            placeholder={'用户名: admin or user'}
+                            placeholder={'Username: admin or user'}
                             rules={[
                                 {
                                     required: true,
-                                    message: '请输入用户名!',
+                                    message: 'Please enter your username!',
                                 },
                             ]}
                         />
@@ -178,11 +178,11 @@ const Page = () => {
                                     />
                                 ),
                             }}
-                            placeholder={'密码: ant.design'}
+                            placeholder={'Password: ant.design'}
                             rules={[
                                 {
                                     required: true,
-                                    message: '请输入密码！',
+                                    message: 'Please enter your password!',
                                 },
                             ]}
                         />
@@ -203,15 +203,15 @@ const Page = () => {
                                 ),
                             }}
                             name='mobile'
-                            placeholder={'手机号'}
+                            placeholder={'Phone number'}
                             rules={[
                                 {
                                     required: true,
-                                    message: '请输入手机号！',
+                                    message: 'Please enter your phone number!',
                                 },
                                 {
                                     pattern: /^1\d{10}$/,
-                                    message: '手机号格式错误！',
+                                    message: 'Invalid phone number format!',
                                 },
                             ]}
                         />
@@ -230,23 +230,24 @@ const Page = () => {
                             captchaProps={{
                                 size: 'large',
                             }}
-                            placeholder={'请输入验证码'}
+                            placeholder={'Enter verification code'}
                             captchaTextRender={(timing, count) => {
                                 if (timing) {
-                                    return `${count} 秒`;
+                                    return `${count} seconds`;
                                 }
-                                return '获取验证码';
+                                return 'Get verification code';
                             }}
                             name='captcha'
                             rules={[
                                 {
                                     required: true,
-                                    message: '请输入验证码！',
+                                    message:
+                                        'Please enter the verification code!',
                                 },
                             ]}
                             onGetCaptcha={async () => {
                                 message.success(
-                                    '获取验证码成功！验证码为：1234'
+                                    'Verification code sent successfully! The code is: 1234'
                                 );
                             }}
                         />
@@ -257,13 +258,13 @@ const Page = () => {
                         marginBlockEnd: 24,
                     }}>
                     <ProFormCheckbox noStyle name='autoLogin'>
-                        自动登录
+                        Auto login
                     </ProFormCheckbox>
                     <a
                         style={{
                             float: 'right',
                         }}>
-                        忘记密码
+                        Forgot password
                     </a>
                 </div>
             </LoginFormPage>
