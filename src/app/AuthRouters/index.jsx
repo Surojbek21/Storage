@@ -13,7 +13,7 @@ import {
     ProFormCheckbox,
     ProFormText,
 } from '@ant-design/pro-components';
-import { Button, Divider, Space, Tabs, message, theme } from 'antd';
+import { Divider, Space, Tabs, message, theme } from 'antd';
 import { useState } from 'react';
 
 const iconStyles = {
@@ -34,37 +34,14 @@ const Page = () => {
             }}>
             <LoginFormPage
                 backgroundImageUrl='https://mdn.alipayobjects.com/huamei_gcee1x/afts/img/A*y0ZTS6WLwvgAAAAAAAAAAAAADml6AQ/fmt.webp'
-                logo='https://github.githubassets.com/favicons/favicon.png'
+                logo='https://safestorage.in/assets/new_design_css/img/safe-storage.png'
                 backgroundVideoUrl='https://gw.alipayobjects.com/v/huamei_gcee1x/afts/video/jXRBRK_VAwoAAAAAAAAAAAAAK4eUAQBr'
-                title='Github'
+                title='Storage'
                 containerStyle={{
                     backgroundColor: 'rgba(0, 0, 0,0.65)',
                     backdropFilter: 'blur(4px)',
                 }}
                 subTitle="The world's largest code hosting platform"
-                activityConfig={{
-                    style: {
-                        boxShadow: '0px 0px 8px rgba(0, 0, 0, 0.2)',
-                        color: token.colorTextHeading,
-                        borderRadius: 8,
-                        backgroundColor: 'rgba(255,255,255,0.25)',
-                        backdropFilter: 'blur(4px)',
-                    },
-                    title: 'Event title, configurable image',
-                    subTitle: 'Event description text',
-                    action: (
-                        <Button
-                            size='large'
-                            style={{
-                                borderRadius: 20,
-                                background: token.colorBgElevated,
-                                color: token.colorPrimary,
-                                width: 120,
-                            }}>
-                            Check it out
-                        </Button>
-                    ),
-                }}
                 actions={
                     <div
                         style={{
@@ -139,8 +116,8 @@ const Page = () => {
                     centered
                     activeKey={loginType}
                     onChange={(activeKey) => setLoginType(activeKey)}>
-                    <Tabs.TabPane key={'account'} tab={'Account Login'} />
-                    <Tabs.TabPane key={'phone'} tab={'Phone Login'} />
+                    <Tabs.TabPane key={'account'} tab={'Account Kirish'} />
+                    <Tabs.TabPane key={'phone'} tab={'Phone Kirish'} />
                 </Tabs>
                 {loginType === 'account' && (
                     <>
@@ -178,7 +155,7 @@ const Page = () => {
                                     />
                                 ),
                             }}
-                            placeholder={'Password: ant.design'}
+                            placeholder={'Password:'}
                             rules={[
                                 {
                                     required: true,
@@ -279,3 +256,4 @@ export default () => {
         </ProConfigProvider>
     );
 };
+            

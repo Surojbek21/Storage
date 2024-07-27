@@ -44,7 +44,7 @@ const Dashboard = () => {
                 <button
                     style={{
                         border: 'none',
-                        width: '70px',
+                        width: '60px',
                         height: '30px',
                         borderRadius: '5px',
                         backgroundColor: 'red',
@@ -55,8 +55,12 @@ const Dashboard = () => {
                 </button>
             ),
         },
+        {
+            title: 'Add',
+            dataIndex: 'add',
+        },
     ];
-    return (
+    return (    
         <div>
             <Table columns={columns} dataSource={data} />
         </div>
