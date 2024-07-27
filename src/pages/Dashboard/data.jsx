@@ -72,7 +72,7 @@ export const data = [
         roli: 'Director',
         edit: <EditOutlined />,
         delete: <DeleteOutlined />,
-        add: '',
+        
     },
    
 ];
