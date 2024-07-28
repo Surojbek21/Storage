@@ -1,7 +1,12 @@
 import { Table } from 'antd';
 import React from 'react';
 import { data } from './data';
+import useDrawer from '../../hooks/useDrawer';
+import Drawer from './Drawer';
+
 const Dashboard = () => {
+    const { open, handleOpen, handleClose } = useDrawer();
+
     const columns = [
         {
             title: 'Name',
@@ -32,7 +37,8 @@ const Dashboard = () => {
                         backgroundColor: 'green',
                         color: 'white',
                         cursor: 'pointer',
-                    }}>
+                    }}
+                >
                     {text}
                 </button>
             ),
@@ -50,16 +56,16 @@ const Dashboard = () => {
                         backgroundColor: 'red',
                         color: 'white',
                         cursor: 'pointer',
-                    }}>
+                    }}
+                >
                     {text}
                 </button>
             ),
         },
     ];
+
     return (
-        
         <div>
-            
             <button
                 style={{
                     border: 'none',
@@ -71,9 +77,14 @@ const Dashboard = () => {
                     backgroundColor: 'green',
                     color: 'white',
                     cursor: 'pointer',
-                }} className='btn-modal'>
+                }}
+                className='btn-modal'
+                onClick={handleOpen}
+                type='button'
+            >
                 +
             </button>
+            <Drawer open={open} onClose={handleClose} />
             <Table columns={columns} dataSource={data} />
         </div>
     );

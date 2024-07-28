@@ -21,12 +21,21 @@ const AppRouters = () => {
                     theme='dark'
                     mode='inline'
                     defaultSelectedKeys={['1']}
-                    items={menu.map(({ id, name, path}) => ({
-                        key: id,
-                        label: <Link to={path}>{name}</Link>,
-                        path: path,
+                    items={menu.map(
+                        ({ id, name, path, children }) => {
+                        if(children) {
+                            return {
+                                key: id,
+                                label: <Link to={path}>{name}</Link>,
+                            };
+                        }
+                        return {
+                            key: id,
+                            label: <Link to={path}>{name}</Link>,
+                            path: path,
+                        }
                       
-                    }))}
+                    })}
                 />
             </Sider>
             <Layout>
@@ -66,6 +75,7 @@ const AppRouters = () => {
                                 key={item.id}
                                 path={item.path}
                                 element={item.element}
+                                    
                             />
                         ))}
                     </Routes>
