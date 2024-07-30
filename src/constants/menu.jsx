@@ -1,56 +1,45 @@
 export const menu = [
     {
+        id: 0,
+        name: 'Storage',
+        path: '/storage',
+        img: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsVEq3T-zCMkXMwhVBfF9UjrFlHrUjuOjE2Q&s',
+    },
+    {
         id: 1,
-        name: 'Dashboard',
+        name: 'cправочник',
         path: '/dashboard',
-        children: [
-            {
-                id: 2,
-                title: 'Tovar',
-                path: '/tovar',
-            },
-            // {
-            //     id: 2,
-            //     title: 'Tovar',
-            //     path: '/tovar',
-            // },
-            // {
-            //     id: 3,
-            //     title: 'Tovar',
-            //     path: '/tovar',
-            // },
-        ],
+        children: [{}],
     },
 
     {
         id: 3,
-        name: 'Tovarlar',
+        name: 'документы',
         path: '/tovarlar',
+        children: [],
     },
     {
         id: 4,
-        name: 'Statics',
+        name: 'отчеты',
         path: '/statics',
+        children: [],
     },
     {
         id: 5,
-        name: 'Admin',
+        name: 'анализи',
         path: '/admin',
+        children: [],
     },
     {
         id: 6,
-        name: 'Boshqa Maxsulotlar',
+        name: 'сервис',
         path: '/boshqamaxsulotlar',
+        children: [],
     },
     {
         id: 7,
-        name: 'Ichimliklar',
-        path: '/ichimliklar',
-    },
-
-    {
-        id: 8,
         name: 'Settings',
         path: '/settings',
+        children: [],
     },
 ];
