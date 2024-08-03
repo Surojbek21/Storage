@@ -14,16 +14,25 @@ const AppRouters = () => {
         token: { colorBgContainer, borderRadiusLG },
     } = theme.useToken();
     return (
-        <Layout style={{height: "100vh"}}>
+        <Layout style={{ height: '100vh' }}>
             <Sider trigger={null} collapsible collapsed={collapsed}>
                 <div className='demo-logo-vertical' />
+                <div style={{ display: 'flex', alignItems: 'center', marginLeft: "15px",     padding: '15px' }}>
+                    <img
+                        src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsVEq3T-zCMkXMwhVBfF9UjrFlHrUjuOjE2Q&s'
+                        alt='logo'
+                        width={40}
+                        height={40}
+                        style={{ borderRadius: "50%" }}
+                    />
+                    <span style={{ color: "white", marginLeft: "20px", fontWeight: "bold", fontSize: "20px" }}>Storage</span>
+                </div>
                 <Menu
                     theme='dark'
                     mode='inline'
                     defaultSelectedKeys={['1']}
-                    items={menu.map(
-                        ({ id, name, path, children }) => {
-                        if(children) {
+                    items={menu.map(({ id, name, path, children }) => {
+                        if (children) {
                             return {
                                 key: id,
                                 label: <Link to={path}>{name}</Link>,
@@ -40,8 +49,7 @@ const AppRouters = () => {
                             key: id,
                             label: <Link to={path}>{name}</Link>,
                             path: path,
-                        }
-                      
+                        };
                     })}
                 />
             </Sider>
@@ -82,7 +90,6 @@ const AppRouters = () => {
                                 key={item.id}
                                 path={item.path}
                                 element={item.element}
-                                    
                             />
                         ))}
                     </Routes>

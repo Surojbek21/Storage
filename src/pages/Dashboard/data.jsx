@@ -36,43 +36,5 @@ export const data = [
         roli: 'Director',
         edit: <EditOutlined />,
         delete: <DeleteOutlined />,
-    },
-    {
-        key: '5',
-        name: 'Murod Komolov',
-        email: 'uqV5h@example.com',
-        phone: '+998 99 999 99 99',
-        roli: 'Director',
-        edit: <EditOutlined />,
-        delete: <DeleteOutlined />,
-    },
-    {
-        key: '6',
-        name: 'Murod Komolov',
-        email: 'uqV5h@example.com',
-        phone: '+998 99 999 99 99',
-        roli: 'Director',
-        edit: <EditOutlined />,
-        delete: <DeleteOutlined />,
-    },
-    {
-        key: '7',
-        name: 'Murod Komolov',
-        email: 'uqV5h@example.com',
-        phone: '+998 99 999 99 99',
-        roli: 'Director',
-        edit: <EditOutlined />,
-        delete: <DeleteOutlined />,
-    },
-    {
-        key: '8',
-        name: 'Murod Komolov',
-        email: 'uqV5h@example.com',
-        phone: '+998 99 999 99 99',
-        roli: 'Director',
-        edit: <EditOutlined />,
-        delete: <DeleteOutlined />,
-        
-    },
-   
+    }  
 ];

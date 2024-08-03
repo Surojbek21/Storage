@@ -1,13 +1,9 @@
 import Dashboard from "../pages/Dashboard/Dashboard";
 import Tovar from "../pages/Dashboard/Tovar";
 import Statics from "../pages/statics";
+import Storage from "../pages/storage";
 
 export const menuList = [
-    {
-        id: 0,
-        path: '/storage',
-        element: <Storage />
-    },
     {
         id: 1,
         path: '/dashboard',
