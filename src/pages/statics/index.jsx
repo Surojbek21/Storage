@@ -1,9 +1,5 @@
-const Statics = () => {
-  return (
-    <div>
-      Hello World
-    </div>
-  )
-}
+const Отчеты = () => {
+    return <div>Hello World</div>;
+};
 
-export default Statics
+export default Отчеты;

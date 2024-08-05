@@ -3,11 +3,21 @@ import React from 'react';
 import { data } from './data';
 import useDrawer from '../../hooks/useDrawer';
 import Drawer from './Drawer';
-
 const Dashboard = () => {
     const { open, handleOpen, handleClose } = useDrawer();
 
     const columns = [
+    
+    
+        axios
+            .post("http://localhost:3000", item)
+            .then(function (response) {
+               setData(response);
+            })
+            .catch(function (error) {
+                console.log(error);
+            }),
+    
         {
             title: 'Name',
             dataIndex: 'name',

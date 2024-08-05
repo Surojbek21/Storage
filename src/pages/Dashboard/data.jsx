@@ -1,6 +1,12 @@
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
 
+
+
+
 export const data = [
+
+    
+
     {
         key: '1',
         name: 'Azamat Qodirov',
