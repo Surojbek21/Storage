@@ -1,3 +1,4 @@
+
 export const menu = [
 
     {
@@ -30,23 +31,15 @@ export const menu = [
                 title: 'Склады',
                 path: '/dashboard.sklat',
             },
-            {
-                id: 7,
-                title: 'Акция',
-                path: '/dashboard.aksiya',
-            },
-            {
-                id: 8,
-                title: 'Регионы',
-                path: '/dashboard.region',
-            },
+          
+          
         ],
     },
 
     {
         id: 9,
         name: 'документы',
-        path: '/tovarlar',
+        path: '/hujjatlar',
         children: [
             {
                 id: 10,
@@ -59,30 +52,12 @@ export const menu = [
                 path: '/kurs',
             },
             {
-                id: 12,
-                title: 'Акт инв-циы',
-                path: '/akt',
-            },
-            {
-                id: 13,
-                title: 'Потреб ление',
-                path: '/leniya',
-            },
-            {
                 id: 14,
                 title: 'Заказ поставщику',
                 path: '/zakaz',
             },
-            {
-                id: 15,
-                title: 'Ценник',
-                path: '/sennik',
-            },
-            {
-                id: 16,
-                title: 'Перерасчет',
-                path: '/perarescet',
-            },
+           
+           
             {
                 id: 17,
                 title: 'Получитъ',
@@ -98,12 +73,12 @@ export const menu = [
             {
                 id: 19,
                 title: 'Продажи',
-                path: '/statics',
+                path: '/sotish',
             },
             {
                 id: 20,
                 title: 'Резльтаты',
-                path: '/statics',
+                path: '/natijalar',
             },
             {
                 id: 21,

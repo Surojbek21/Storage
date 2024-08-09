@@ -26,6 +26,24 @@ const iconStyles = {
 const Page = () => {
     const [loginType, setLoginType] = useState('phone');
     const { token } = theme.useToken();
+
+
+        const [data, setData] = useState([]);
+        console.log(data);
+        useEffect(() => {
+            const fetchData = async () => {
+                try {
+                    const response = await axios.get('API');
+                    setData(response.data.users);
+                } catch (error) {
+                    console.error('Error fetching data:', error);
+                }
+            };
+
+            fetchData();
+        }, []);
+        console.log(data);
+
     return (
         <div
             style={{
