@@ -3,20 +3,21 @@ import React from 'react';
 import { data } from './data';
 import useDrawer from '../../hooks/useDrawer';
 import Drawer from './Drawer';
+import axios from 'axios';
 const Dashboard = () => {
     const { open, handleOpen, handleClose } = useDrawer();
 
+    axios
+        .post('http://localhost:3000/api/v1/users')
+        .then(function (response) {
+            setData(response);
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+    
+    
     const columns = [
-    
-    
-        axios
-            .post("http://localhost:3000", item)
-            .then(function (response) {
-               setData(response);
-            })
-            .catch(function (error) {
-                console.log(error);
-            }),
     
         {
             title: 'Name',
