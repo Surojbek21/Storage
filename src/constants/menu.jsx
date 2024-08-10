@@ -1,6 +1,5 @@
 
 export const menu = [
-
     {
         id: 1,
         name: 'Справочник',
@@ -9,30 +8,29 @@ export const menu = [
             {
                 id: 2,
                 title: 'Категория',
-                path: '/dashboard/katalog',
+                path: '/catalog',
             },
             {
                 id: 3,
                 title: 'Группа товаров',
-                path: '/dashboard.gruppa-tovar',
+                path: '/gruppa-tovar',
             },
             {
                 id: 4,
                 title: 'Товары',
-                path: '/dashboard.tovar',
+                path: '/tovar',
+                
             },
             {
                 id: 5,
                 title: 'Контрагенты',
-                path: '/dashboard.boshqaruv',
+                path: '/boshqaruv',
             },
             {
                 id: 6,
                 title: 'Склады',
-                path: '/dashboard.sklat',
+                path: '/sklat',
             },
-          
-          
         ],
     },
 
@@ -56,203 +54,122 @@ export const menu = [
                 title: 'Заказ поставщику',
                 path: '/zakaz',
             },
-           
-           
+
             {
-                id: 17,
+                id: 15,
                 title: 'Получитъ',
                 path: '/olish',
             },
         ],
     },
     {
-        id: 18,
+        id: 16,
         name: 'отчеты',
         path: '/statics',
         children: [
             {
-                id: 19,
+                id: 17,
                 title: 'Продажи',
                 path: '/sotish',
             },
             {
-                id: 20,
+                id: 18,
                 title: 'Резльтаты',
                 path: '/natijalar',
             },
             {
-                id: 21,
+                id: 19,
                 title: 'Долги',
-                path: '/statics',
+                path: '/qarzlar',
             },
+
+            {
+                id: 20,
+                title: 'Затраты',
+                path: '/narxi',
+            },
+
+            {
+                id: 21,
+                title: 'Остатки',
+                path: '/qolganlari',
+            },
+
             {
                 id: 22,
-                title: 'Акт сверки',
-                path: '/statics',
+                title: 'Оборот товара',
+                path: '/aylanma',
             },
+
             {
                 id: 23,
-                title: 'Долг за день',
-                path: '/statics',
-            },
-            {
-                id: 24,
-                title: 'Затраты',
-                path: '/statics',
-            },
-            {
-                id: 25,
-                title: 'Печатъ шаблон',
-                path: '/statics',
-            },
-            {
-                id: 26,
-                title: 'Аудит',
-                path: '/statics',
-            },
-            {
-                id: 27,
-                title: 'Табелъ',
-                path: '/statics',
-            },
-            {
-                id: 28,
-                title: 'Остатки',
-                path: '/statics',
-            },
-            {
-                id: 29,
-                title: 'Движение',
-                path: '/statics',
-            },
-            {
-                id: 30,
-                title: 'Оборот товара',
-                path: '/statics',
-            },
-            {
-                id: 31,
-                title: 'Отчет по инвен-я',
-                path: '/statics',
-            },
-            {
-                id: 32,
                 title: 'Запас',
-                path: '/statics',
-            },
-            {
-                id: 33,
-                title: 'Заказ поставщику',
-                path: '/statics',
-            },
-            {
-                id: 34,
-                title: 'Рлан продажи',
-                path: '/statics',
-            },
-            {
-                id: 35,
-                title: 'Остаток на себ-сти',
-                path: '/statics',
-            },
-            {
-                id: 36,
-                title: 'Перерасчет',
-                path: '/statics',
+                path: '/zapas',
             },
         ],
     },
     {
-        id: 37,
+        id: 24,
         name: 'Анализи',
-        path: '/admin',
+        path: '/tahlil',
         children: [
             {
-                id: 38,
+                id: 25,
                 title: 'Акция',
-                path: '/admin.aksiya',
-            },
-            {
-                id: 39,
-                title: 'Прозноз',
-                path: '/admin.aksiya',
-            },
-            {
-                id: 40,
-                title: 'Прогроз-2',
-                path: '/admin.aksiya',
+                path: '/aksiya',
             },
         ],
     },
     {
-        id: 41,
+        id: 26,
         name: 'сервис',
         path: '/server',
         children: [
             {
-                id: 42,
+                id: 27,
                 title: 'Журнал',
-                path: '/server.jurnal',
+                path: '/jurnal',
             },
             {
-                id: 43,
+                id: 28,
                 title: 'Настройки',
-                path: '/server.nastroyka',
+                path: '/nastroyka',
             },
             {
-                id: 44,
+                id: 29,
                 title: 'Телеграм',
-                path: '/server.telegram',
+                path: '/telegram',
             },
             {
-                id: 45,
+                id: 30,
                 title: 'Зарплатыа',
-                path: '/server.tovar',
+                path: '/ish haqi',
             },
             {
-                id: 46,
+                id: 31,
                 title: 'Полъзователи',
-                path: '/server.tovar',
+                path: '/Foydalanuvchilar',
             },
+
             {
-                id: 47,
-                title: 'Редактор форм',
-                path: '/server.tovar',
-            },
-            {
-                id: 48,
-                title: 'Шаблон Чек',
-                path: '/server.tovar',
-            },
-            {
-                id: 49,
-                title: 'Шаблон документ',
-                path: '/server.tovar',
-            },
-            {
-                id: 50,
-                title: 'Помощъ',
-                path: '/server.tovar',
-            },
-            {
-                id: 51,
+                id: 32,
                 title: 'FAQ',
-                path: '/server.tovar',
+                path: '/yordam',
             },
             {
-                id: 52,
+                id: 33,
                 title: 'Регистрация',
-                path: '/server.tovar',
+                path: '/',
             },
             {
-                id: 53,
+                id: 34,
                 title: 'O программе',
-                path: '/server.tovar',
+                path: '/',
             },
         ],
     },
     {
-        id: 54,
+        id: 35,
         name: 'Settings',
         path: '/settings',
         children: [],
