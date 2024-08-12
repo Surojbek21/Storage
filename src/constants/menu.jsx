@@ -1,9 +1,11 @@
+import { ApiTwoTone, CalculatorTwoTone, DiffTwoTone, FolderOpenTwoTone, FundTwoTone, SettingTwoTone } from "@ant-design/icons";
 
 export const menu = [
     {
         id: 1,
         name: 'Справочник',
         path: '/dashboard',
+        img: <FolderOpenTwoTone/>,
         children: [
             {
                 id: 2,
@@ -19,7 +21,6 @@ export const menu = [
                 id: 4,
                 title: 'Товары',
                 path: '/tovar',
-                
             },
             {
                 id: 5,
@@ -38,6 +39,7 @@ export const menu = [
         id: 9,
         name: 'документы',
         path: '/hujjatlar',
+        img: <DiffTwoTone />,
         children: [
             {
                 id: 10,
@@ -66,6 +68,7 @@ export const menu = [
         id: 16,
         name: 'отчеты',
         path: '/statics',
+        img: <FundTwoTone/>,
         children: [
             {
                 id: 17,
@@ -112,6 +115,7 @@ export const menu = [
         id: 24,
         name: 'Анализи',
         path: '/tahlil',
+        img: <CalculatorTwoTone/>,
         children: [
             {
                 id: 25,
@@ -124,6 +128,7 @@ export const menu = [
         id: 26,
         name: 'сервис',
         path: '/server',
+        img: <ApiTwoTone/>,
         children: [
             {
                 id: 27,
@@ -172,6 +177,7 @@ export const menu = [
         id: 35,
         name: 'Settings',
         path: '/settings',
+        img: <SettingTwoTone/>,
         children: [],
     },
 ];

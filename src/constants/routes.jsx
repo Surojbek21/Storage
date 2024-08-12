@@ -1,5 +1,5 @@
 import Dashboard from '../pages/Dashboard/Dashboard';
-import Kategoriya from '../pages/Dashboard/Katalog';
+import Kategoriya from '../pages/Dashboard/Kategoriya';
 import Tovar from '../pages/Dashboard/Tovar';
 
 

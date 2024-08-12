@@ -31,11 +31,11 @@ const AppRouters = () => {
                     theme='dark'
                     mode='inline'
                     defaultSelectedKeys={['1']}
-                    items={menu.map(({ id, name, path, children }) => {
+                    items={menu.map(({ id, name, path, children, img }) => {
                         if (children) {
                             return {
                                 key: id,
-                                label: <Link to={path}>{name}</Link>,
+                                label: <Link to={path}>{img}{name}</Link>,
                                 children: children.map(
                                     ({ title, path, id, icon }) => ({
                                         key: id,

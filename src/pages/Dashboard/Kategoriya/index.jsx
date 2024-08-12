@@ -14,7 +14,7 @@ const Kategoriya = () => {
             dataIndex: 'name',
         },
         {
-            title: 'Email',
+            title: '',
             dataIndex: '',
         },
         {

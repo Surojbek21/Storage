@@ -23,7 +23,7 @@ const ProductDrawer = () => {
             </div>
             <input
                 placeholder='search'
-                className='absloute rounded-[12px] -translate-y-7 text-white ml-2 px-12 mb-5 mt-[-100px] bg-red-600 py-2 '
+                className='absloute rounded-[12px] -translate-y-7 text-white ml-2 px-12 mb-5 mt-[-100px] bg-gray-300 py-2 '
             />
             <Drawer
                 style={{

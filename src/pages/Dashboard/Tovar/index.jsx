@@ -1,19 +1,51 @@
-import React from 'react'
+import React from 'react';
 import useDrawer from '../../../hooks/useDrawer';
 import ProductDrawer from '../Drawer';
+import { Table } from 'antd';
+import { FileImageTwoTone } from '@ant-design/icons';
+import { Checkbox } from 'antd';
+import { Tabletovar } from './table'; 
 
 const Tovar = () => {
-    const {open, handleOpen, handleClose} = useDrawer();
-  return (
-      <div>
-          <button
-              className='flex justify-end items-end align-end rounded-md px-3 py-2 border-black bg-red-600 text-white'
-              onClick={handleOpen}>
-              +
-          </button>
-          <ProductDrawer open={open} onClosed={handleClose} />
-      </div>
-  );
-}
+    const TovarData = [
+        {
+            title: <Checkbox />,
+            dataIndex: 'checkbox',
+        },
+        {
+            title: <FileImageTwoTone />,
+            dataIndex: 'img',
+        },
+        {
+            title: 'Name',
+            dataIndex: 'name',
+        },
+        {
+            title: 'Soni',
+            dataIndex: 'soni',
+        },
+        {
+            title: 'Status',
+            dataIndex: 'status',
+        },
+        {
+            title: 'Action', // Adding a meaningful title for the action column
+            dataIndex: 'action',
+        },
+    ];
 
-export default Tovar
+    const { open, handleOpen, handleClose } = useDrawer();
+
+    return (
+        <div>
+            <ProductDrawer open={open} onClosed={handleClose} />
+            <Table
+                columns={TovarData}
+                dataSource={Tabletovar}
+                rowKey='id'
+            />{' '}
+        </div>
+    );
+};
+
+export default Tovar;
