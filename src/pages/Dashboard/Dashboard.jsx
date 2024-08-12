@@ -71,23 +71,6 @@ const Dashboard = () => {
 
     return (
         <div>
-            <button
-                style={{
-                    border: 'none',
-                    width: '50px',
-                    marginLeft: '1180px',
-                    height: '30px',
-                    fontSize: '20px',
-                    borderRadius: '5px',
-                    backgroundColor: 'green',
-                    color: 'white',
-                    cursor: 'pointer',
-                }}
-                className='btn-modal'
-                onClick={handleOpen}
-                type='button'>
-                +
-            </button>
             <Drawer open={open} onClose={handleClose} />
             <Table columns={columns} dataSource={data} />
         </div>

@@ -1,27 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React from 'react'
+import useDrawer from '../../../hooks/useDrawer';
+import ProductDrawer from '../Drawer';
 
 const Tovar = () => {
-    const [data, setData] = useState([]);
+    const {open, handleOpen, handleClose} = useDrawer();
+  return (
+      <div>
+          <button
+              className='flex justify-end items-end align-end rounded-md px-3 py-2 border-black bg-red-600 text-white'
+              onClick={handleOpen}>
+              +
+          </button>
+          <ProductDrawer open={open} onClosed={handleClose} />
+      </div>
+  );
+}
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await axios.get(
-                    'http://localhost:3000/product/all'
-                );
-                setData(response.data.product);
-            } catch (error) {
-                console.log('Error fetching data:', error);
-            }
-        };
-
-        fetchData();
-    }, []);
-
-    console.log(data);
-
-    return <></>;
-};
-
-export default Tovar;
+export default Tovar
