@@ -1,8 +1,5 @@
 import { useState } from 'react';
-import {
-    MenuFoldOutlined,
-    MenuUnfoldOutlined,
-} from '@ant-design/icons';
+import { MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 import { Button, Layout, Menu, theme } from 'antd';
 import { menu } from '../../constants/menu';
 import { Link, Route, Routes } from 'react-router-dom';
@@ -17,15 +14,29 @@ const AppRouters = () => {
         <Layout style={{ height: '100vh' }}>
             <Sider trigger={null} collapsible collapsed={collapsed}>
                 <div className='demo-logo-vertical' />
-                <div style={{ display: 'flex', alignItems: 'center', marginLeft: "15px",     padding: '15px' }}>
+                <div
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        marginLeft: '15px',
+                        padding: '15px',
+                    }}>
                     <img
                         src='https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsVEq3T-zCMkXMwhVBfF9UjrFlHrUjuOjE2Q&s'
                         alt='logo'
                         width={40}
                         height={40}
-                        style={{ borderRadius: "50%" }}
+                        style={{ borderRadius: '50%' }}
                     />
-                    <span style={{ color: "white", marginLeft: "20px", fontWeight: "bold", fontSize: "20px" }}>Storage</span>
+                    <span
+                        style={{
+                            color: 'white',
+                            marginLeft: '20px',
+                            fontWeight: 'bold',
+                            fontSize: '20px',
+                        }}>
+                        Storage
+                    </span>
                 </div>
                 <Menu
                     theme='dark'
@@ -35,7 +46,12 @@ const AppRouters = () => {
                         if (children) {
                             return {
                                 key: id,
-                                label: <Link to={path}>{img}{name}</Link>,
+                                label: (
+                                    <Link to={path} className='flex gap-2'>
+                                        {img}
+                                        {name}
+                                    </Link>
+                                ),
                                 children: children.map(
                                     ({ title, path, id, icon }) => ({
                                         key: id,

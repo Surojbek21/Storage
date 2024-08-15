@@ -27,11 +27,7 @@ export const menu = [
                 title: 'Контрагенты',
                 path: '/boshqaruv',
             },
-            {
-                id: 6,
-                title: 'Склады',
-                path: '/sklat',
-            },
+           
         ],
     },
 
