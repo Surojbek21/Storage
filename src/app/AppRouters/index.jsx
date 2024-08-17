@@ -28,6 +28,7 @@ const AppRouters = () => {
                         height={40}
                         style={{ borderRadius: '50%' }}
                     />
+
                     <span
                         style={{
                             color: 'white',
@@ -35,7 +36,7 @@ const AppRouters = () => {
                             fontWeight: 'bold',
                             fontSize: '20px',
                         }}>
-                        Storage
+                        Storage 
                     </span>
                 </div>
                 <Menu

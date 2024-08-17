@@ -9,26 +9,23 @@ import { Checkbox } from 'antd';
 const Tabletovar = [
     {
         key: 1,
-        img: 'https://via.placeholder.com/150',
-        name: 'Product 1',
+        id: 1,
+        группа: 'Product 1',
         soni: 10,
-        status: 'Available',
         sana: '2024-08-14',
     },
     {
         key: 2,
-        img: 'https://via.placeholder.com/150',
-        name: 'Product 2',
+        id: 2,
+        группа: 'Product 2',
         soni: 5,
-        status: 'Unavailable',
         sana: '2024-08-14',
     },
     {
         key: 3,
-        img: 'https://via.placeholder.com/150',
-        name: 'Product 3',
+        id: 3,
+        группа: 'Product 3',
         soni: 8,
-        status: 'Available',
         sana: '2024-08-14',
     },
 
@@ -66,24 +63,19 @@ const Tovar = () => {
             ),
         },
         {
-            title: <FileImageTwoTone />,
-            dataIndex: 'img',
-            render: (img) => (
-                <img src={img} alt='product' style={{ width: 50 }} />
-            ),
+            title: 'ID',
+            dataIndex: 'id',
         },
+        
         {
-            title: 'Name',
-            dataIndex: 'name',
+            title: 'Группа',
+            dataIndex: 'группа',
         },
         {
             title: 'Soni',
             dataIndex: 'soni',
         },
-        {
-            title: 'Status',
-            dataIndex: 'status',
-        },
+
         {
             title: 'Sana',
             dataIndex: 'sana',

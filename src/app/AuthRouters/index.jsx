@@ -31,7 +31,7 @@ const Page = () => {
         <div
             style={{
                 backgroundColor: 'white',
-                height: '100vh',
+                height: '1 00vh',
             }}>
             <LoginFormPage
                 backgroundImageUrl='https://mdn.alipayobjects.com/huamei_gcee1x/afts/img/A*y0ZTS6WLwvgAAAAAAAAAAAAADml6AQ/fmt.webp'

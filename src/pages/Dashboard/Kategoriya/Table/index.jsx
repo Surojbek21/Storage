@@ -3,21 +3,18 @@ export const data = [
     {
         id: 1,
         key: 1,
-        name: 'Azamat Qodirov',
+        наименование: 'Плас',
     },
     {
         id: 2,
         key: 2,
-        name: 'Azamat Qodirovich',
+        наименование: 'МДФ',
     },
     {
         id: 3,
         key: 3,
-        name: 'Azamat Qodirovich',
+        наименование: 'Сантехника',
     },
-    {
-        id: 4,
-        key: 4,
-        name: 'Azamat Qodirovich',
-    },
+   
+
 ];
