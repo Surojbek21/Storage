@@ -2,30 +2,32 @@ import React, { useState } from 'react';
 import useDrawer from '../../../hooks/useDrawer';
 import ProductDrawer from '../Drawer';
 import { Table } from 'antd';
-import { FileImageTwoTone } from '@ant-design/icons';
 import { Checkbox } from 'antd';
+import { DeleteFilled, EditOutlined } from '@ant-design/icons';
 
-// Assuming you have Tabletovar data like this:
 const Tabletovar = [
     {
         key: 1,
         id: 1,
+        наименование: 'Product 1',
         группа: 'Product 1',
-        soni: 10,
+        щена: '43.3$',
         sana: '2024-08-14',
     },
     {
         key: 2,
         id: 2,
+        наименование: 'Product 1',
         группа: 'Product 2',
-        soni: 5,
+        щена: '25$',
         sana: '2024-08-14',
     },
     {
         key: 3,
         id: 3,
+        наименование: 'Product 1',
         группа: 'Product 3',
-        soni: 8,
+        щена: '19.9$',
         sana: '2024-08-14',
     },
 
@@ -47,9 +49,9 @@ const Tovar = () => {
                         if (checked) {
                             setSelectedRowKeys(
                                 Tabletovar.map((item) => item.key)
-                            ); // Select all
+                            );
                         } else {
-                            setSelectedRowKeys([]); // Deselect all
+                            setSelectedRowKeys([]);
                         }
                     }}
                 />
@@ -66,14 +68,17 @@ const Tovar = () => {
             title: 'ID',
             dataIndex: 'id',
         },
-        
+        {
+            title: 'Наименование',
+            dataIndex: 'наименование',
+        },
         {
             title: 'Группа',
             dataIndex: 'группа',
         },
         {
-            title: 'Soni',
-            dataIndex: 'soni',
+            title: 'Щена',
+            dataIndex: 'щена',
         },
 
         {
@@ -88,6 +93,24 @@ const Tovar = () => {
                     onClick={() => handleAction(record.key)}
                     className='bg-blue-500 text-white px-3 py-1 rounded'>
                     Action
+                </button>
+            ),
+        },
+        {
+            title: 'Изменить',
+            dataIndex: 'изменить',
+            render: (_, record) => (
+                <button className='bg-green-500 text-white px-6 py-1 rounded'>
+                    <EditOutlined />
+                </button>
+            ),
+        },
+        {
+            title: 'Удалить',
+            dataIndex: 'удалить',
+            render: (_, record) => (
+                <button className='bg-red-500 text-white px-6 py-1 rounded'>
+                    <DeleteFilled />
                 </button>
             ),
         },

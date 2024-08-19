@@ -25,7 +25,7 @@ export const menu = [
             {
                 id: 5,
                 title: 'Контрагенты',
-                path: '/boshqaruv',
+                path: '/kontragent',
             },
            
         ],

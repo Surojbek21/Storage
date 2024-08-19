@@ -1,46 +1,28 @@
 // import { Table, Input } from 'antd';
 import React, { useEffect, useState } from 'react';
-// import { DeleteFilled, EditFilled } from '@ant-design/icons';
+import { DeleteFilled, EditFilled } from '@ant-design/icons';
 import axios from 'axios';
 import { Table } from 'antd';
+import { data12 } from './Table';
 
 const Kategoriya = () => {
     const [data, setData] = useState([]);
-    // const [editingKey, setEditingKey] = useState(null);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await axios.get(
-                    'http://localhost:3000/category'
-                );
-                setData(response.data.categoriy);
-                console.log(response.data.categoriy);
-                alert('Data fetched successfully');
-                
-            } catch (error) {
-                console.error('Error fetching data:', error);
-                alert('Error fetching data');
-            }
-        };
+   useEffect(() => {
+       const fetchData = async () => {
+           try {
+               const req = await axios.get('http://localhost:3000/category');
+               setData(req.data.category);
+               alert(req.data.message);
+           } catch (error) {
+               console.error(error);
+           }
+       };
 
-        fetchData();
-    }, []);
+       fetchData();
+   }, []);
 
-    const handleEdit = (record) => {
-        setEditingKey({ key: record.id, value: record.name });
-    };
-
-    const handleSave = (id) => {
-        const newData = data.map((item) => {
-            if (item.id === id) {
-                return { ...item, name: editingKey.value };
-            }
-            return item;
-        });
-        setData(newData);
-        setEditingKey(null); // Clear editing key after saving
-    };
+    let editingKey;
 
     const columns = [
         {
@@ -123,8 +105,10 @@ const Kategoriya = () => {
 
     return (
         <div>
-            <Table columns={columns} dataSource={data} rowKey='id' />
-            {data.name}
+            <Table columns={columns} dataSource={data12} rowKey='id' />
+            {data12.map((item) => (
+                <div key={item.id}>{item.name}</div>
+            ))}
         </div>
     );
 };

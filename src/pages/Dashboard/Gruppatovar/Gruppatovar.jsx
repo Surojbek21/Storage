@@ -1,7 +1,7 @@
 import { Table, Input } from 'antd';
 import React, { useState } from 'react';
 import { DeleteFilled, EditFilled } from '@ant-design/icons';
-import { data } from '../Kategoriya/Table';
+import { data12 } from '../Kategoriya/Table';
 
 const Gruppatovar = () => {
     const [editingKey, setEditingKey] = useState(null);
@@ -45,7 +45,12 @@ const Gruppatovar = () => {
                 ),
         },
         {
+            title: 'Категория',
+            dataIndex: 'категория',
+        },
+        {
             title: 'Изменить',
+            dataIndex: 'изменить',
             render: (text, record) =>
                 record.key === editingKey?.key ? (
                     <button
@@ -99,8 +104,8 @@ const Gruppatovar = () => {
 
     return (
         <div>
-            <Table columns={columns} dataSource={data} rowKey='key' />
-            dslo
+            <Table columns={columns} dataSource={data12} rowKey='key' />
+            
         </div>
     );
 };
