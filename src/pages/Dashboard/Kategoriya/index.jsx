@@ -1,114 +1,108 @@
-// import { Table, Input } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { DeleteFilled, EditFilled } from '@ant-design/icons';
 import axios from 'axios';
-import { Table } from 'antd';
-import { data12 } from './Table';
+import { DeleteFilled, EditFilled, PlusOutlined } from '@ant-design/icons';
+import { Drawer, Button, Input, Form } from 'antd';
 
 const Kategoriya = () => {
     const [data, setData] = useState([]);
+    const [drawerVisible, setDrawerVisible] = useState(false);
+    const [form] = Form.useForm();
 
-   useEffect(() => {
-       const fetchData = async () => {
-           try {
-               const req = await axios.get('http://localhost:3000/category');
-               setData(req.data.category);
-               alert(req.data.message);
-           } catch (error) {
-               console.error(error);
-           }
-       };
+    useEffect(() => {
+        axios
+            .get('http://localhost:3000/category')
+            .then((res) => setData(res.data.categoriy))
+            .catch((err) => console.log(err));
+    }, []);
 
-       fetchData();
-   }, []);
+    const showDrawer = () => {
+        setDrawerVisible(true);
+    };
 
-    let editingKey;
+    const closeDrawer = () => {
+        setDrawerVisible(false);
+    };
 
-    const columns = [
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            key: 'id',
-        },
-        {
-            title: 'Наименование',
-            dataIndex: 'name',
-            key: 'name',
-            render: (text, record) =>
-                record.id === editingKey?.key ? (
-                    <Input
-                        value={editingKey.value}
-                        onChange={(e) =>
-                            setEditingKey({
-                                ...editingKey,
-                                value: e.target.value,
-                            })
-                        }
-                    />
-                ) : (
-                    text
-                ),
-        },
-        {
-            title: 'Изменить',
-            key: 'edit',
-            render: (text, record) =>
-                record.id === editingKey?.key ? (
-                    <button
-                        onClick={() => handleSave(record.id)}
-                        style={{
-                            border: 'none',
-                            width: '70px',
-                            height: '30px',
-                            borderRadius: '5px',
-                            backgroundColor: 'blue',
-                            color: 'white',
-                            cursor: 'pointer',
-                        }}>
-                        Saqlash
-                    </button>
-                ) : (
-                    <button
-                        onClick={() => handleEdit(record)}
-                        style={{
-                            border: 'none',
-                            width: '70px',
-                            height: '30px',
-                            borderRadius: '5px',
-                            backgroundColor: 'green',
-                            color: 'white',
-                            cursor: 'pointer',
-                        }}>
-                        <EditFilled />
-                    </button>
-                ),
-        },
-        {
-            title: 'Удалить',
-            key: 'delete',
-            render: () => (
-                <button
-                    style={{
-                        border: 'none',
-                        width: '60px',
-                        height: '30px',
-                        borderRadius: '5px',
-                        backgroundColor: 'red',
-                        color: 'white',
-                        cursor: 'pointer',
-                    }}>
-                    <DeleteFilled />
-                </button>
-            ),
-        },
-    ];
+    const handlePost = async () => {
+        const data12 = {
+            name: 'name',
+        };
+        try {
+            const res = await axios.post(
+                'http://localhost:3000/category',
+                data
+            );
+            onCreate(data.name.categoriy);
+            console.log(res.data);
+            alert('Yaratildi');
+        } catch (err) {
+            console.error('Xato bor', err);
+            alert('Xato');
+        }
+    };
 
     return (
         <div>
-            <Table columns={columns} dataSource={data12} rowKey='id' />
-            {data12.map((item) => (
-                <div key={item.id}>{item.name}</div>
-            ))}
+            <Button
+                type='primary'
+                icon={<PlusOutlined />}
+                className='mb-10 py-1 ml-[1050px] text-xl'
+                onClick={showDrawer}></Button>
+
+            <table className='w-full justify-between px-2 py-10'>
+                <thead>
+                    <tr>
+                        <th>№</th>
+                        <th>наименование</th>
+                        <th>Изменить</th>
+                        <th>Удалить</th>
+                    </tr>
+                </thead>
+                <tbody className='mt-6'>
+                    <tr className='text-center' key={data}>
+                        <td>{data.id}</td>
+                        <td>{data.name}</td>
+                        <td className='cursor-pointer w-10 rounded-md py-1.5 text-green-500'>
+                            <EditFilled />
+                        </td>
+                        <td className='cursor-pointer text-red-500'>
+                            <DeleteFilled />
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <Drawer
+                title='Yangi Kategoriya Qoʻshish'
+                width={400}
+                onClose={closeDrawer}
+                visible={drawerVisible}
+                footer={
+                    <div style={{ textAlign: 'right' }}>
+                        <Button
+                            onClick={closeDrawer}
+                            style={{ marginRight: 8 }}>
+                            Bekor qilish
+                        </Button>
+                        <Button onClick={handlePost} type='primary'>
+                            Qo'shish
+                        </Button>
+                    </div>
+                }>
+                <Form form={form} layout='vertical' name='categoryForm'>
+                    <Form.Item
+                        name='name'
+                        label='Kategoriya nomi'
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Iltimos, kategoriya nomini kiriting!',
+                            },
+                        ]}>
+                        <Input placeholder='Kategoriya nomini kiriting' />
+                    </Form.Item>
+                </Form>
+            </Drawer>
         </div>
     );
 };
