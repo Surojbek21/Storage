@@ -13,7 +13,7 @@ const ProductDrawer = () => {
     return (
         <div>
             <div
-                className='w-[60px] h-[44px] bg-green-700 rounded-[10px] mt-4px] ml-[1140px] cursor-pointer'
+                className='w-[60px] h-[44px] bg-green-700 rounded-[10px] mt-4px] ml-[90%] cursor-pointer'
                 onClick={showDrawer}>
                 <div className=''>
                     <button className=' ml-[22px] mt-1 text-2xl text-white'>

@@ -1,18 +1,29 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { DeleteFilled, EditFilled, PlusOutlined } from '@ant-design/icons';
-import { Drawer, Button, Input, Form } from 'antd';
+import { PlusOutlined, EditFilled, DeleteFilled } from '@ant-design/icons';
+import { Drawer, Button, Input, Form, Table } from 'antd';
 
 const Kategoriya = () => {
     const [data, setData] = useState([]);
     const [drawerVisible, setDrawerVisible] = useState(false);
+    const [editMode, setEditMode] = useState(false);
+    const [currentId, setCurrentId] = useState(null);
     const [form] = Form.useForm();
 
+    // Ma'lumotlarni yuklash
     useEffect(() => {
-        axios
-            .get('http://localhost:3000/category')
-            .then((res) => setData(res.data.categoriy))
-            .catch((err) => console.log(err));
+        const fetchData = async () => {
+            try {
+                const req = await axios.get(
+                    'http://localhost:3000/category/all'
+                );
+                setData(req.data.categoriy);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        fetchData();
     }, []);
 
     const showDrawer = () => {
@@ -21,22 +32,86 @@ const Kategoriya = () => {
 
     const closeDrawer = () => {
         setDrawerVisible(false);
+        form.resetFields();
+        setEditMode(false);
+        setCurrentId(null);
     };
 
+    // Yangi kategoriya qo'shish
     const handlePost = async () => {
-        const data12 = {
-            name: 'name',
-        };
         try {
-            const res = await axios.post(
-                'http://localhost:3000/category',
-                data
-            );
-            onCreate(data.name.categoriy);
-            console.log(res.data);
-            alert('Yaratildi');
+            const values = await form.validateFields();
+            if (editMode && currentId !== null) {
+                await axios.post(
+                    `http://localhost:3000/category/update/${currentId}`,
+                    values
+                );
+                alert('Kategoriya yangilandi');
+            } else {
+                await axios.post(
+                    'http://localhost:3000/category/insert',
+                    values
+                );
+                alert('Kategoriya yaratildi');
+            }
+            closeDrawer();
+            window.location.reload(); // Ma'lumotlar yangilanishi uchun sahifani qayta yuklash
         } catch (err) {
             console.error('Xato bor', err);
+            alert('Xato');
+        }
+    };
+
+    const columns = [
+        {
+            title: '№',
+            dataIndex: 'id',
+            key: 'id',
+        },
+        {
+            title: 'Наименование',
+            dataIndex: 'name',
+            key: 'name',
+        },
+        {
+            title: 'Изменить',
+            key: 'edit',
+            render: (text, record) => (
+                <EditFilled
+                    className='cursor-pointer w-10 rounded-md py-1.5 text-green-500'
+                    onClick={() => handleEdit(record)}
+                />
+            ),
+        },
+        {
+            title: 'Удалить',
+            key: 'delete',
+            render: (text, record) => (
+                <DeleteFilled
+                    className='cursor-pointer text-red-500'
+                    onClick={() => handleDelete(record.id)}
+                />
+            ),
+        },
+    ];
+
+    const handleEdit = (record) => {
+        form.setFieldsValue(record);
+        setCurrentId(record.id);
+        setEditMode(true);
+        setDrawerVisible(true);
+    };
+
+    const handleDelete = async (id) => {
+        try {
+            await axios.delete(`http://localhost:3000/category/delete/${id}`);
+            alert("Kategoriya o'chirildi");
+            window.location.reload();
+        } catch (err) {
+            console.error(
+                'Xato bor',
+                err.response ? err.response.data : err.message
+            );
             alert('Xato');
         }
     };
@@ -46,37 +121,19 @@ const Kategoriya = () => {
             <Button
                 type='primary'
                 icon={<PlusOutlined />}
-                className='mb-10 py-1 ml-[1050px] text-xl'
+                className='mb-10 py-1 ml-[90%] text-xl'
                 onClick={showDrawer}></Button>
-
-            <table className='w-full justify-between px-2 py-10'>
-                <thead>
-                    <tr>
-                        <th>№</th>
-                        <th>наименование</th>
-                        <th>Изменить</th>
-                        <th>Удалить</th>
-                    </tr>
-                </thead>
-                <tbody className='mt-6'>
-                    <tr className='text-center' key={data}>
-                        <td>{data.id}</td>
-                        <td>{data.name}</td>
-                        <td className='cursor-pointer w-10 rounded-md py-1.5 text-green-500'>
-                            <EditFilled />
-                        </td>
-                        <td className='cursor-pointer text-red-500'>
-                            <DeleteFilled />
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            <Table columns={columns} dataSource={data} rowKey='id' />
 
             <Drawer
-                title='Yangi Kategoriya Qoʻshish'
+                title={
+                    editMode
+                        ? 'Kategoriya Tahrirlash'
+                        : 'Yangi Kategoriya Qoʻshish'
+                }
                 width={400}
                 onClose={closeDrawer}
-                visible={drawerVisible}
+                open={drawerVisible}
                 footer={
                     <div style={{ textAlign: 'right' }}>
                         <Button
@@ -85,7 +142,7 @@ const Kategoriya = () => {
                             Bekor qilish
                         </Button>
                         <Button onClick={handlePost} type='primary'>
-                            Qo'shish
+                            {editMode ? 'Yangilash' : "Qo'shish"}
                         </Button>
                     </div>
                 }>

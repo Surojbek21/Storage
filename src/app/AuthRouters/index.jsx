@@ -1,259 +1,75 @@
-import {
-    AlipayOutlined,
-    LockOutlined,
-    MobileOutlined,
-    TaobaoOutlined,
-    UserOutlined,
-    WeiboOutlined,
-} from '@ant-design/icons';
-import {
-    LoginFormPage,
-    ProConfigProvider,
-    ProFormCaptcha,
-    ProFormCheckbox,
-    ProFormText,
-} from '@ant-design/pro-components';
-import { Divider, Space, Tabs, message, theme } from 'antd';
-import { useState } from 'react';
-
-const iconStyles = {
-    color: 'rgba(0, 0, 0, 0.2)',
-    fontSize: '18px',
-    verticalAlign: 'middle',
-    cursor: 'pointer',
-};
-
-const Page = () => {
-    const [loginType, setLoginType] = useState('phone');
-    const { token } = theme.useToken();
-
+function App() {
     return (
-        <div
-            style={{
-                backgroundColor: 'white',
-                height: '1 00vh',
-            }}>
-            <LoginFormPage
-                backgroundImageUrl='https://mdn.alipayobjects.com/huamei_gcee1x/afts/img/A*y0ZTS6WLwvgAAAAAAAAAAAAADml6AQ/fmt.webp'
-                logo='https://safestorage.in/assets/new_design_css/img/safe-storage.png'
-                backgroundVideoUrl='https://gw.alipayobjects.com/v/huamei_gcee1x/afts/video/jXRBRK_VAwoAAAAAAAAAAAAAK4eUAQBr'
-                title='Storage'
-                containerStyle={{
-                    backgroundColor: 'rgba(0, 0, 0,0.65)',
-                    backdropFilter: 'blur(4px)',
-                }}
-                subTitle="The world's largest code hosting platform"
-                actions={
-                    <div
-                        style={{
-                            display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            flexDirection: 'column',
-                        }}>
-                        <Divider plain>
-                            <span
-                                style={{
-                                    color: token.colorTextPlaceholder,
-                                    fontWeight: 'normal',
-                                    fontSize: 14,
-                                }}>
-                                Other login methods
-                            </span>
-                        </Divider>
-                        <Space align='center' size={24}>
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    flexDirection: 'column',
-                                    height: 40,
-                                    width: 40,
-                                    border:
-                                        '1px solid ' + token.colorPrimaryBorder,
-                                    borderRadius: '50%',
-                                }}>
-                                <AlipayOutlined
-                                    style={{ ...iconStyles, color: '#1677FF' }}
-                                />
-                            </div>
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    flexDirection: 'column',
-                                    height: 40,
-                                    width: 40,
-                                    border:
-                                        '1px solid ' + token.colorPrimaryBorder,
-                                    borderRadius: '50%',
-                                }}>
-                                <TaobaoOutlined
-                                    style={{ ...iconStyles, color: '#FF6A10' }}
-                                />
-                            </div>
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    flexDirection: 'column',
-                                    height: 40,
-                                    width: 40,
-                                    border:
-                                        '1px solid ' + token.colorPrimaryBorder,
-                                    borderRadius: '50%',
-                                }}>
-                                <WeiboOutlined
-                                    style={{ ...iconStyles, color: '#1890ff' }}
-                                />
-                            </div>
-                        </Space>
+        <div className='relative flex items-center justify-center min-h-screen'>
+            <video
+                autoPlay
+                loop
+                muted
+                className='absolute inset-0 object-cover w-full h-full'>
+                <source
+                    src='https://gw.alipayobjects.com/v/huamei_gcee1x/afts/video/jXRBRK_VAwoAAAAAAAAAAAAAK4eUAQBr'
+                    type='video/mp4'
+                />
+                Your browser does not support the video tag.
+            </video>
+
+            <div className='relative z-10 w-full max-w-md p-8 space-y-6  bg-opacity-90 bg-gray-900 rounded-lg shadow-md'>
+                <h2 className='text-2xl font-bold text-center text-white'>
+                    Tiger
+                </h2>
+                <form className='space-y-6'>
+                    <div>
+                        <label className='block text-sm font-medium text-white'>
+                            Email
+                        </label>
+                        <input
+                            type='email'
+                            required
+                            className='w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm'
+                            placeholder='Email'
+                        />
                     </div>
-                }>
-                <Tabs
-                    centered
-                    activeKey={loginType}
-                    onChange={(activeKey) => setLoginType(activeKey)}>
-                    <Tabs.TabPane key={'account'} tab={'Account Kirish'} />
-                    <Tabs.TabPane key={'phone'} tab={'Phone Kirish'} />
-                </Tabs>
-                {loginType === 'account' && (
-                    <>
-                        <ProFormText
-                            name='username'
-                            fieldProps={{
-                                size: 'large',
-                                prefix: (
-                                    <UserOutlined
-                                        style={{
-                                            color: token.colorText,
-                                        }}
-                                        className={'prefixIcon'}
-                                    />
-                                ),
-                            }}
-                            placeholder={'Username: admin or user'}
-                            rules={[
-                                {
-                                    required: true,
-                                    message: 'Please enter your username!',
-                                },
-                            ]}
+                    <div>
+                        <label className='block text-sm font-medium text-white'>
+                            Password
+                        </label>
+                        <input
+                            type='password'
+                            required
+                            className='w-full px-3 py-2 mt-1 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm'
+                            placeholder='Password'
                         />
-                        <ProFormText.Password
-                            name='password'
-                            fieldProps={{
-                                size: 'large',
-                                prefix: (
-                                    <LockOutlined
-                                        style={{
-                                            color: token.colorText,
-                                        }}
-                                        className={'prefixIcon'}
-                                    />
-                                ),
-                            }}
-                            placeholder={'Password:'}
-                            rules={[
-                                {
-                                    required: true,
-                                    message: 'Please enter your password!',
-                                },
-                            ]}
-                        />
-                    </>
-                )}
-                {loginType === 'phone' && (
-                    <>
-                        <ProFormText
-                            fieldProps={{
-                                size: 'large',
-                                prefix: (
-                                    <MobileOutlined
-                                        style={{
-                                            color: token.colorText,
-                                        }}
-                                        className={'prefixIcon'}
-                                    />
-                                ),
-                            }}
-                            name='mobile'
-                            placeholder={'Phone number'}
-                            rules={[
-                                {
-                                    required: true,
-                                    message: 'Please enter your phone number!',
-                                },
-                                {
-                                    pattern: /^1\d{10}$/,
-                                    message: 'Invalid phone number format!',
-                                },
-                            ]}
-                        />
-                        <ProFormCaptcha
-                            fieldProps={{
-                                size: 'large',
-                                prefix: (
-                                    <LockOutlined
-                                        style={{
-                                            color: token.colorText,
-                                        }}
-                                        className={'prefixIcon'}
-                                    />
-                                ),
-                            }}
-                            captchaProps={{
-                                size: 'large',
-                            }}
-                            placeholder={'Enter verification code'}
-                            captchaTextRender={(timing, count) => {
-                                if (timing) {
-                                    return `${count} seconds`;
-                                }
-                                return 'Get verification code';
-                            }}
-                            name='captcha'
-                            rules={[
-                                {
-                                    required: true,
-                                    message:
-                                        'Please enter the verification code!',
-                                },
-                            ]}
-                            onGetCaptcha={async () => {
-                                message.success(
-                                    'Verification code sent successfully! The code is: 1234'
-                                );
-                            }}
-                        />
-                    </>
-                )}
-                <div
-                    style={{
-                        marginBlockEnd: 24,
-                    }}>
-                    <ProFormCheckbox noStyle name='autoLogin'>
-                        Auto login
-                    </ProFormCheckbox>
-                    <a
-                        style={{
-                            float: 'right',
-                        }}>
-                        Forgot password
-                    </a>
-                </div>
-            </LoginFormPage>
+                    </div>
+                    <div className='flex items-center justify-between'>
+                        <div className='flex items-center'>
+                            <input
+                                id='remember-me'
+                                type='checkbox'
+                                className='w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500'
+                            />
+                            <label
+                                htmlFor='remember-me'
+                                className='block ml-2 text-sm text-white'>
+                                Remember me
+                            </label>
+                        </div>
+                        <div className='text-sm'>
+                            <a
+                                href='#'
+                                className='font-medium text-white hover:text-sky-500'>
+                                Forgot your password?
+                            </a>
+                        </div>
+                    </div>
+                    <button
+                        type='submit'
+                        className='w-full px-4 py-2 text-sm font-medium text-white bg-sky-600 border border-transparent rounded-md shadow-sm hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500'>
+                        Sign in
+                    </button>
+                </form>
+            </div>
         </div>
     );
-};
+}
 
-export default () => {
-    return (
-        <ProConfigProvider dark>
-            <Page />
-        </ProConfigProvider>
-    );
-};
+export default App;
