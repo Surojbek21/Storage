@@ -1,229 +1,123 @@
-import { Table, Input, Drawer, Button } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { DeleteFilled, EditFilled } from '@ant-design/icons';
 import axios from 'axios';
+import { EditFilled, DeleteFilled } from '@ant-design/icons';
+import { Button, Table } from 'antd';
+import GruppatovarDrawer from './Drawer';
+import useDrawer from '../../../hooks/useDrawer';
 
 const Gruppatovar = () => {
     const [data, setData] = useState([]);
-    const [editingKey, setEditingKey] = useState(null);
-    const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-    const [newItem, setNewItem] = useState({
-        наименование: '',
-        категория: '',
-    });
+    const [editMode, setEditMode] = useState(false);
+    const [currentRecord, setCurrentRecord] = useState(null); // Record for editing
+    const { open, handleOpen, handleClose } = useDrawer();
 
-    // Ma'lumotlarni yuklash
+    // Fetch data from server
+    const fetchData = async () => {
+        try {
+            const req = await axios.get('http://localhost:3000/group/all');
+            setData(req.data.group_product);
+        } catch (error) {
+            console.error("Ma'lumotlarni olishda xato:", error);
+        }
+    };
+
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const req = await axios.get('http://localhost:3000/group/all');
-                setData(req.data.group_product);
-                alert('Ma`lumotlarni yuklandi');
-            } catch (error) {
-                console.error(error);
-                alert('Xatolik yuz berdi');
-            }
-        };
-
         fetchData();
     }, []);
 
+    const handlePageChange = (page, pageSize) => {
+        // Implement page change logic if needed
+    };
+
+    const showDrawer = (record = null) => {
+        setCurrentRecord(record);
+        setEditMode(!!record);
+        handleOpen();
+    };
+
     const handleEdit = (record) => {
-        setEditingKey({
-            key: record.id,
-            value: record.наименование,
-        });
+        showDrawer(record);
     };
 
-    const handleSave = (key) => {
-        const newData = data.map((item) => {
-            if (item.id === key) {
-                return { ...item, наименование: editingKey.value };
-            }
-            return item;
-        });
-        setData(newData);
-        setEditingKey(null);
-    };
-
-    const handleOpenDrawer = () => {
-        setIsDrawerOpen(true);
-    };
-
-    const handleCloseDrawer = () => {
-        setIsDrawerOpen(false);
-    };
-
-    const handleDelete = (key) => {
-        const newData = data.filter((item) => item.id !== key);
-        setData(newData);
-    };
-
-    const handleAddItem = () => {
-        const newData = [...data, { id: Date.now(), ...newItem }];
-        setData(newData);
-        setNewItem({ наименование: '', категория: '' });
-        handleCloseDrawer();
-    };
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setNewItem((prevItem) => ({
-            ...prevItem,
-            [name]: value,
-        }));
+    const handleDelete = async (id) => {
+        try {
+            await axios.delete(`http://localhost:3000/group/delete/${id}`);
+            alert("Kategoriya o'chirildi");
+            fetchData(); // Refresh data
+        } catch (err) {
+            console.error('Xato bor', err);
+            alert('Xato');
+        }
     };
 
     const columns = [
         {
-            title: 'ID',
+            title: '№',
             dataIndex: 'id',
+            key: 'id',
         },
         {
             title: 'Наименование',
-            dataIndex: 'наименование',
-            render: (text, record) =>
-                record.id === editingKey?.key ? (
-                    <Input
-                        value={editingKey.value}
-                        onChange={(e) =>
-                            setEditingKey({
-                                ...editingKey,
-                                value: e.target.value,
-                            })
-                        }
-                    />
-                ) : (
-                    text
-                ),
+            dataIndex: 'name',
+            key: 'name',
         },
         {
-            title: 'Категория',
-            dataIndex: 'категория',
+            title: 'Category ID',
+            dataIndex: 'categoriy_id',
+            key: 'category_id',
+        },
+        {
+            title: 'Created',
+            dataIndex: 'created',
+            key: 'created',
+            render: (text) => {
+                if (!text) return "Noma'lum vaqt";
+                const date = new Date(text);
+                return isNaN(date.getTime()) ? text : date.toLocaleString();
+            },
         },
         {
             title: 'Изменить',
-            dataIndex: 'изменить',
-            render: (text, record) =>
-                record.id === editingKey?.key ? (
-                    <button
-                        onClick={() => handleSave(record.id)}
-                        style={{
-                            border: 'none',
-                            width: '70px',
-                            height: '30px',
-                            borderRadius: '5px',
-                            backgroundColor: 'blue',
-                            color: 'white',
-                            cursor: 'pointer',
-                        }}>
-                        Saqlash
-                    </button>
-                ) : (
-                    <button
-                        onClick={() => handleEdit(record)}
-                        style={{
-                            border: 'none',
-                            width: '70px',
-                            height: '30px',
-                            borderRadius: '5px',
-                            backgroundColor: 'green',
-                            color: 'white',
-                            cursor: 'pointer',
-                        }}>
-                        <EditFilled />
-                    </button>
-                ),
+            key: 'edit',
+            render: (text, record) => (
+                <EditFilled
+                    className='cursor-pointer w-10 rounded-md py-1.5 text-green-500'
+                    onClick={() => handleEdit(record)}
+                />
+            ),
         },
         {
             title: 'Удалить',
-            dataIndex: 'удалить',
+            key: 'delete',
             render: (text, record) => (
-                <button
+                <DeleteFilled
+                    className='cursor-pointer text-red-500'
                     onClick={() => handleDelete(record.id)}
-                    style={{
-                        border: 'none',
-                        width: '60px',
-                        height: '30px',
-                        borderRadius: '5px',
-                        backgroundColor: 'red',
-                        color: 'white',
-                        cursor: 'pointer',
-                    }}>
-                    <DeleteFilled />
-                </button>
+                />
             ),
         },
     ];
 
     return (
-        <div>
-            <Button
-                type='primary'
-                onClick={handleOpenDrawer}
-                style={{ marginBottom: '16px', marginLeft: '90%' }}>
-                Add
-            </Button>
-
-            <Drawer
-                width={300}
-                onClose={handleCloseDrawer}
-                open={isDrawerOpen}
-                bodyStyle={{ paddingBottom: 80 }}>
-                <input
-                    type='text'
-                    name='наименование'
-                    placeholder='наименование'
-                    value={newItem.наименование}
-                    onChange={handleInputChange}
-                    style={{
-                        width: '100%',
-                        padding: '8px',
-                        marginTop: '50px',
-                        marginBottom: '16px',
-                        border: '1px solid #d9d9d9',
-                        borderRadius: '4px',
-                    }}
-                />
-                <input
-                    type='text'
-                    name='категория'
-                    placeholder='категория'
-                    value={newItem.категория}
-                    onChange={handleInputChange}
-                    style={{
-                        width: '100%',
-                        padding: '8px',
-                        marginTop: '16px',
-                        marginBottom: '16px',
-                        border: '1px solid #d9d9d9',
-                        borderRadius: '4px',
-                    }}
-                />
-                <Button
-                    type='default'
-                    onClick={() =>
-                        setNewItem({ наименование: '', категория: '' })
-                    }
-                    style={{
-                        width: '45%',
-                        backgroundColor: 'gray',
-                        color: 'white',
-                        marginTop: '26px',
-                        marginRight: '10px',
-                    }}>
-                    Clear
-                </Button>
+        <>
+            <div>
                 <Button
                     type='primary'
-                    onClick={handleAddItem}
-                    style={{ width: '45%' }}>
-                    Save
+                    className='mb-10 py-1 ml-[90%] text-xl'
+                    onClick={() => showDrawer()}>
+                    Add
                 </Button>
-            </Drawer>
+                <Table columns={columns} dataSource={data} rowKey='id' />
 
-            <Table columns={columns} dataSource={data} rowKey='id' />
-        </div>
+                <GruppatovarDrawer
+                    open={open}
+                    handleClose={handleClose}
+                    fetchData={fetchData} // Pass fetchData function
+                    editMode={editMode}
+                    record={currentRecord} // Pass current record
+                />
+            </div>
+        </>
     );
 };
 

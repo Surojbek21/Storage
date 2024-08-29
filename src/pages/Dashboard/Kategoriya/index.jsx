@@ -18,6 +18,7 @@ const Kategoriya = () => {
                     'http://localhost:3000/category/all'
                 );
                 setData(req.data.categoriy);
+                
             } catch (error) {
                 console.error(error);
             }
