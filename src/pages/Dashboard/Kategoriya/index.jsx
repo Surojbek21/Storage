@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { PlusOutlined, EditFilled, DeleteFilled } from '@ant-design/icons';
 import { Drawer, Button, Input, Form, Table } from 'antd';
+import { Link, useParams } from 'react-router-dom';
+
 
 const Kategoriya = () => {
     const [data, setData] = useState([]);
@@ -9,21 +11,23 @@ const Kategoriya = () => {
     const [editMode, setEditMode] = useState(false);
     const [currentId, setCurrentId] = useState(null);
     const [form] = Form.useForm();
-
+    const {id} = useParams();
     // Ma'lumotlarni yuklash
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const req = await axios.get(
-                    'http://localhost:3000/category/all'
-                );
+    const fetchData = async () => {
+        try {
+            const req = await axios.get('http://localhost:3000/category/all');
+            
+            if (req.data && req.data.categoriy) {
                 setData(req.data.categoriy);
-                
-            } catch (error) {
-                console.error(error);
+            } else {
+                console.error("Ma'lumotlar kutilgan formatda emas.");
             }
-        };
+        } catch (error) {
+            console.error("Ma'lumotlarni olishda xato:", error);
+        }
+    };
 
+    useEffect(() => {
         fetchData();
     }, []);
 
@@ -38,7 +42,7 @@ const Kategoriya = () => {
         setCurrentId(null);
     };
 
-    // Yangi kategoriya qo'shish
+    // Yangi kategoriya qo'shish yoki tahrirlash
     const handlePost = async () => {
         try {
             const values = await form.validateFields();
@@ -56,10 +60,27 @@ const Kategoriya = () => {
                 alert('Kategoriya yaratildi');
             }
             closeDrawer();
-            window.location.reload(); // Ma'lumotlar yangilanishi uchun sahifani qayta yuklash
+            fetchData(); // Sahifani yangilash o'rniga faqat ma'lumotlarni qayta yuklash
         } catch (err) {
-            console.error('Xato bor', err);
-            alert('Xato');
+            console.error(
+                'Xato bor:',
+                err.response ? err.response.data : err.message
+            );
+            alert("Xato: Ma'lumotlarni saqlashda xato yuz berdi.");
+        }
+    };
+
+    const handleDelete = async (id) => {
+        try {
+            await axios.delete(`http://localhost:3000/category/delete/${id}`);
+            alert("Kategoriya o'chirildi");
+            fetchData(); // Sahifani yangilash o'rniga ma'lumotlarni qayta yuklash
+        } catch (err) {
+            console.error(
+                'Xato bor:',
+                err.response ? err.response.data : err.message
+            );
+            alert("Xato: Ma'lumotni o'chirishda xato yuz berdi.");
         }
     };
 
@@ -73,6 +94,7 @@ const Kategoriya = () => {
             title: 'Наименование',
             dataIndex: 'name',
             key: 'name',
+            render: (link, record) => <Link to={`/catalog/${record.id}`}>{link}</Link>,
         },
         {
             title: 'Изменить',
@@ -103,27 +125,14 @@ const Kategoriya = () => {
         setDrawerVisible(true);
     };
 
-    const handleDelete = async (id) => {
-        try {
-            await axios.delete(`http://localhost:3000/category/delete/${id}`);
-            alert("Kategoriya o'chirildi");
-            window.location.reload();
-        } catch (err) {
-            console.error(
-                'Xato bor',
-                err.response ? err.response.data : err.message
-            );
-            alert('Xato');
-        }
-    };
-
     return (
         <div>
             <Button
                 type='primary'
                 icon={<PlusOutlined />}
                 className='mb-10 py-1 ml-[90%] text-xl'
-                onClick={showDrawer}></Button>
+                onClick={showDrawer}
+            />
             <Table columns={columns} dataSource={data} rowKey='id' />
 
             <Drawer

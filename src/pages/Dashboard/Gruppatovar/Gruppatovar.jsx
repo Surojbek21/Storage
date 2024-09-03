@@ -16,6 +16,8 @@ const Gruppatovar = () => {
         try {
             const req = await axios.get('http://localhost:3000/group/all');
             setData(req.data.group_product);
+            console.log(req.data.group_product);
+            
         } catch (error) {
             console.error("Ma'lumotlarni olishda xato:", error);
         }
@@ -43,7 +45,7 @@ const Gruppatovar = () => {
         try {
             await axios.delete(`http://localhost:3000/group/delete/${id}`);
             alert("Kategoriya o'chirildi");
-            fetchData(); // Refresh data
+            fetchData();
         } catch (err) {
             console.error('Xato bor', err);
             alert('Xato');

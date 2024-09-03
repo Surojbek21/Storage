@@ -10,7 +10,6 @@ const GruppatovarDrawer = ({
     record,
 }) => {
     const [data, setData] = useState([]);
-    const [select, setSelect] = useState([]);
     const [form] = Form.useForm();
 
     useEffect(() => {
@@ -20,7 +19,6 @@ const GruppatovarDrawer = ({
                     'http://localhost:3000/category/all'
                 );
                 setData(req.data.categoriy);
-                console.log(req.data);
             } catch (error) {
                 console.error(error);
             }
@@ -49,18 +47,16 @@ const GruppatovarDrawer = ({
                 alert('Kategoriya yaratildi');
             }
             handleClose();
-            fetchData(); 
-            console.log(values);
-            
+            fetchData();
         } catch (err) {
             console.error('Xato bor', err);
             alert('Xato');
         }
     };
 
-    const handleSelect = (e) => {
-        setSelect(e.target.value)
-    }
+    const handleSelect = (value) => {
+        form.setFieldsValue({ category_id: value });
+    };
 
     return (
         <Drawer
@@ -94,13 +90,28 @@ const GruppatovarDrawer = ({
                             message: 'Iltimos, kategoriya nomini tanlang!',
                         },
                     ]}>
-                    <Select placeholder='Kategoriya nomini tanlang' value={select} onChange={handleSelect}>
+                    <Select
+                        placeholder='Kategoriya nomini tanlang'
+                        onChange={handleSelect}>
                         {data.map((item) => (
                             <Select.Option value={item.id} key={item.id}>
-                                {item.name}
+                               {item.name}
+                                {item.id}
                             </Select.Option>
                         ))}
                     </Select>
+                    <input
+                        placeholder='gruppatovar    '
+                        className='py-3 mt-3 border border-gray-700'
+                        style={{
+                            padding: '10px',
+                            marginTop: '10px',
+                            border: '1px solid gray',
+                            borderRadius: '4px',
+                            width: '100%',
+                            boxSizing: 'border-box',
+                        }}
+                    />
                 </Form.Item>
             </Form>
         </Drawer>

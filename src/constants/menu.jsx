@@ -12,11 +12,7 @@ export const menu = [
                 title: 'Категория',
                 path: '/catalog',
             },
-            {
-                id: 3,
-                title: 'Группа товаров',
-                path: '/gruppa-tovar',
-            },
+           
             {
                 id: 4,
                 title: 'Товары',
