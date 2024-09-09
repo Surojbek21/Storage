@@ -2,6 +2,7 @@ import Dashboard from '../pages/Dashboard/Dashboard';
 import Gruppatovar from '../pages/Dashboard/Gruppatovar/Gruppatovar';
 import Kategoriya from '../pages/Dashboard/Kategoriya';
 import Product from '../pages/Dashboard/Kategoriya/product';
+import Tovarlar from '../pages/Dashboard/Kategoriya/tovarlar';
 import Kontragent from '../pages/Dashboard/Kontragent/kontr';
 import Tovar from '../pages/Dashboard/Tovar';
 
@@ -31,12 +32,16 @@ export const menuList = [
     {
         id: 5,
         path: '/kontragent',
-        element: <Kontragent/>,
+        element: <Kontragent />,
     },
     {
         id: 6,
-        path: "/catalog/:id",
-        element: <Product />
-    }
-   
+        path: '/catalog/:id',
+        element: <Product />,
+    },
+    {
+        id: 7,
+        path: '/catalog/:id/product/:productId',
+        element: <Tovarlar />,
+    },
 ];

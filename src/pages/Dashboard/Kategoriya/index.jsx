@@ -17,8 +17,8 @@ const Kategoriya = () => {
         try {
             const req = await axios.get('http://localhost:3000/category/all');
             
-            if (req.data && req.data.categoriy) {
-                setData(req.data.categoriy);
+            if (req.data && req.data.category) {
+                setData(req.data.category);
             } else {
                 console.error("Ma'lumotlar kutilgan formatda emas.");
             }

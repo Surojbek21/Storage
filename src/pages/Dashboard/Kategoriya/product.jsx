@@ -1,48 +1,50 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Drawer, Form, Input, List, Select, Spin } from 'antd';
+import { Button, Drawer, Form, Input, List, Select, Spin, message } from 'antd';
+import { Link, useParams } from 'react-router-dom';
 
 const Product = () => {
     const [products, setProducts] = useState([]);
-    const [categoriy, setCategoriy] = useState([]); // Yangi state
+    const [category, setCategory] = useState([]); // "category" o'rniga "categories"
     const [loading, setLoading] = useState(true);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [editMode, setEditMode] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [form] = Form.useForm();
+    const { id } = useParams();
 
     // Backenddan ma'lumotlarni olish
     const fetchProducts = async () => {
         try {
-            const response = await axios.get('http://localhost:3000/group/all/1');
-            const products = response.data.group_product.map((product) => ({
-                ...product,
-                categoriy_id: product.categoriy_id, // categoriy_id ni qo'shish
-            }));
-            setProducts(products);
+            const response = await axios.get(
+                `http://localhost:3000/group/all/${id}`
+            );
+            setProducts(response.data.group);
         } catch (error) {
             console.error('Xato bor:', error);
+            message.error('Mahsulotlarni yuklashda xato yuz berdi');
         } finally {
             setLoading(false);
         }
     };
 
     // Mavjud kategoriyalarni olish
-    const fetchCategories = async () => {
+    const fetchCategory = async () => {
         try {
             const response = await axios.get(
                 'http://localhost:3000/category/all'
             );
-            setCategoriy(response.data.categoriy); // `categories` ni yangilash
+            setCategory(response.data.category);
         } catch (error) {
             console.error('Xato bor:', error);
+            message.error('Kategoriyalarni yuklashda xato yuz berdi');
         }
     };
 
     useEffect(() => {
-        fetchCategories();
+        fetchCategory();
         fetchProducts();
-    }, []);
+    }, [id]); // "id" dependentsiyada qo'shildi
 
     // Ma'lumot qo'shish yoki yangilash
     const handleAddOrUpdateProduct = async (values) => {
@@ -52,15 +54,17 @@ const Product = () => {
                     `http://localhost:3000/group/update/${selectedProduct.id}`,
                     values
                 );
-                alert('Mahsulot yangilandi');
+                message.success('Mahsulot yangilandi');
             } else {
-                await axios.post('http://localhost:3000/group/insert', values);
-                alert("Mahsulot qo'shildi");
+                await axios.post(`http://localhost:3000/group/insert/${id}`, values);
+                message.success("Mahsulot qo'shildi");
+                
             }
             fetchProducts(); // Sahifani qayta yuklash o'rniga ma'lumotlarni qayta yuklash
             handleCloseDrawer();
         } catch (error) {
             console.error('Xato bor:', error);
+            message.error('Maʼlumotni saqlashda xato yuz berdi');
         }
     };
 
@@ -69,20 +73,19 @@ const Product = () => {
         try {
             await axios.delete(`http://localhost:3000/group/delete/${id}`);
             fetchProducts(); // Sahifani qayta yuklash o'rniga ma'lumotlarni qayta yuklash
+            message.success('Mahsulot o‘chirildi');
         } catch (error) {
             console.error('Xato bor:', error);
+            message.error('Mahsulotni o‘chirishda xato yuz berdi');
         }
     };
 
     // Tahrirlash uchun mahsulotni tanlash
     const handleEditProduct = (product) => {
         setSelectedProduct(product);
-        form.setFieldsValue({
-            ...product,
-            categoriy_id: product.categoriy_id, // categoriy_id ni formaga qo'shish
-        });
+        form.setFieldsValue(product); // Mahsulot ma'lumotlarini formaga yuklash
         setEditMode(true);
-        setDrawerOpen(true);
+        setDrawerOpen(false);
     };
 
     // Drawer-ni yopish va reset qilish
@@ -131,7 +134,9 @@ const Product = () => {
                                     O'chirish
                                 </Button>,
                             ]}>
-                            {item.name}
+                            <Link to={`/catalog/${id}/product/${item.id}`}>
+                                {item.name}
+                            </Link>
                         </List.Item>
                     )}
                 />
@@ -175,25 +180,12 @@ const Product = () => {
                         ]}>
                         <Input placeholder='Mahsulot nomini kiriting' />
                     </Form.Item>
-                    <Form.Item
-                        name='categoriy_id'
-                        label='Kategoriya ID'
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Iltimos, kategoriya ID kiriting!',
-                            },
-                        ]}>
-                        <Select placeholder='Kategoriya ID ni tanlang'>
-                            {categoriy.map((categoriy) => (
-                                <Select.Option
-                                    key={categoriy.id}
-                                    value={categoriy.id}>
-                                    {categoriy.name}
-                                </Select.Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
+
+                    {category.map(({ id, name }) => (
+                        <Select.Option key={id} value={id}>
+                            {name}
+                        </Select.Option>
+                    ))}
                 </Form>
             </Drawer>
         </div>
