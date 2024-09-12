@@ -1,7 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { List, Spin, Button, Drawer, Form, Input, message, Table } from 'antd';
+import {
+    Spin,
+    Button,
+    Drawer,
+    Form,
+    Input,
+    message,
+    Table,
+    Select,
+} from 'antd';
 import { useParams } from 'react-router-dom';
+
+const { Option } = Select;
 
 const Tovarlar = () => {
     const [tovarlar, setTovarlar] = useState([]);
@@ -9,8 +20,12 @@ const Tovarlar = () => {
     const [drawerVisible, setDrawerVisible] = useState(false);
     const [currentTovar, setCurrentTovar] = useState(null);
     const [editMode, setEditMode] = useState(false);
+    const [currency, setCurrency] = useState([]);
+    const [statusOptions, setStatusOptions] = useState([]); // Status options state
     const [form] = Form.useForm();
+    const [statusFilter, setStatusFilter] = useState(null);
     const { productId } = useParams();
+
     const formatDateTime = (isoString) => {
         const date = new Date(isoString);
         const day = String(date.getDate()).padStart(2, '0');
@@ -28,7 +43,16 @@ const Tovarlar = () => {
             const response = await axios.get(
                 `http://localhost:3000/product/all/${productId}`
             );
-            setTovarlar(response.data.product);
+            let filteredTovarlar = response.data.product;
+
+            if (statusFilter !== null) {
+                filteredTovarlar = filteredTovarlar.filter(
+                    (item) => item.status === statusFilter
+                );
+            }
+
+            setTovarlar(filteredTovarlar);
+            console.log(filteredTovarlar);
         } catch (error) {
             console.error('Xato bor:', error);
             message.error('Tovarlarni yuklashda xatolik yuz berdi');
@@ -38,8 +62,27 @@ const Tovarlar = () => {
     };
 
     useEffect(() => {
+        const fetchCurrencyAndStatus = async () => {
+            try {
+                const currencyRequest = await axios.get(
+                    'http://localhost:3000/currency/all'
+                );
+                setCurrency(currencyRequest.data.currency);
+
+                const statusRequest = await axios.get(
+                    'http://localhost:3000/status/all'
+                );
+                setStatusOptions(statusRequest.data.status);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        fetchCurrencyAndStatus();
+    }, []);
+
+    useEffect(() => {
         fetchTovarlar();
-    }, [productId]);
+    }, [productId, statusFilter]);
 
     const openDrawer = (tovar = null) => {
         setCurrentTovar(tovar);
@@ -49,7 +92,7 @@ const Tovarlar = () => {
                 price_1: tovar.price_1 || '',
                 price_2: tovar.price_2 || '',
                 price_3: tovar.price_3 || '',
-                valyuta: tovar.valyuta || 'USD',
+                currency_id: tovar.currency_id || 'USD',
             });
             setEditMode(true);
         } else {
@@ -66,35 +109,53 @@ const Tovarlar = () => {
 
     const handleSave = async (values) => {
         try {
-            if (editMode) {
-                await axios.put(
-                    `http://localhost:3000/product/update/${currentTovar.id}`,
-                    { ...values }
-                );
-                message.success('Tovar muvaffaqiyatli tahrirlandi');
-                setTovarlar((prev) =>
-                    prev.map((item) =>
-                        item.id === currentTovar.id
-                            ? { ...item, ...values }
-                            : item
-                    )
-                );
-            } else {
-                const response = await axios.post(
-                    `http://localhost:3000/product/insert/${productId}`,
-                    values
-                );
-                const newProduct = response.data.product;
-
-                message.success(`Yangi tovar muvaffaqiyatli qo'shildi`);
-                setTovarlar((prev) => [...prev, newProduct]);
-            }
+            await axios.put(
+                `http://localhost:3000/product/update/${currentTovar.id}`,
+                {
+                    ...values,
+                    price_1: values.price_1 || '0',
+                    price_2: values.price_2 || '0',
+                    price_3: values.price_3 || '0',
+                }
+            );
+            message.success('Tovar muvaffaqiyatli tahrirlandi');
+            setTovarlar((prev) =>
+                prev.map((item) =>
+                    item.id === currentTovar.id ? { ...item, ...values } : item
+                )
+            );
             closeDrawer();
         } catch (error) {
             console.error('Xato bor:', error);
             message.error('Xatolik yuz berdi');
         }
     };
+
+    const handleAdd = async (values) => {
+        try {
+            const response = await axios.post(
+                `http://localhost:3000/product/insert/${productId}`,
+                {
+                    ...values,
+                    price_1: values.price_1 || '0',
+                    price_2: values.price_2 || '0',
+                    price_3: values.price_3 || '0',
+                }
+            );
+            const newProduct = response.data.product;
+            message.success("Yangi tovar muvaffaqiyatli qo'shildi");
+
+            const updatedTovarlar = [...tovarlar, newProduct];
+            setTovarlar(updatedTovarlar);
+
+            form.resetFields();
+            closeDrawer();
+        } catch (error) {
+            console.error('Xato bor:', error);
+            message.error('Xatolik yuz berdi');
+        }
+    };
+
 
     const handleDelete = async (tovarId) => {
         try {
@@ -109,42 +170,93 @@ const Tovarlar = () => {
         }
     };
 
+  const handleStatusChange = async (tovarId, newStatus) => {
+      try {
+          await axios.post(`http://localhost:3000/product/status/${tovarId}`, {
+              status: newStatus,
+          });
+          message.success(`Status muvaffaqiyatli o'zgartirildi`);
+          setTovarlar((prev) =>
+              prev.map((item) =>
+                  item.id === tovarId ? { ...item, status: newStatus } : item
+              )
+          );
+      } catch (error) {
+          console.error('Xato bor:', error);
+          message.error("Statusni o'zgartirishda xatolik yuz berdi");
+      }
+  };
+
+
+    const handleStatusFilter = (status) => {
+        setStatusFilter(status);
+        fetchTovarlar();
+    };
+
     const columns = [
-        { title: '№', dataIndex: 'id', key: 'id' },
-        { title: 'Name', dataIndex: 'name', key: 'name' },
+        {
+            title: '№',
+            dataIndex: 'id',
+            key: 'id',
+        },
+        {
+            title: 'Name',
+            dataIndex: 'name',
+            key: 'name',
+        },
         {
             title: 'Price 1',
             dataIndex: 'price_1',
             key: 'price_1',
-            render: (text) =>
-                text !== null && text !== undefined ? `${text}` : "Noma'lum",
+            render: (text) => text ?? "Noma'lum",
         },
         {
             title: 'Price 2',
             dataIndex: 'price_2',
             key: 'price_2',
-            render: (text) =>
-                text !== null && text !== undefined ? `${text}` : "Noma'lum",
+            render: (text) => text ?? "Noma'lum",
         },
         {
             title: 'Price 3',
             dataIndex: 'price_3',
             key: 'price_3',
-            render: (text) =>
-                text !== null && text !== undefined ? `${text}` : "Noma'lum",
+            render: (text) => text ?? "Noma'lum",
         },
-        { title: 'Valyuta', dataIndex: 'valyuta', key: 'valyuta' },
-        { title: 'Status', dataIndex: 'status', key: 'status' },
+        {
+            title: 'Currency',
+            dataIndex: 'currency_id',
+            key: 'currency_id',
+            render: (currencyId) => {
+                const currencyItem = currency.find((c) => c.id === currencyId);
+                return currencyItem ? currencyItem.name : 'Noma’lum';
+            },
+        },
         {
             title: 'Created',
-            dataIndex: 'created_at',
-            key: 'created_at',
+            dataIndex: 'created',
+            key: 'created',
             render: (text) => formatDateTime(text),
         },
         {
+            title: 'Status',
+            dataIndex: 'status',
+            key: 'status',
+            render: (status, record) => (
+                <Select
+                    value={status} // Bu yerda status to'g'ridan-to'g'ri backenddan kelgan qiymat bo'ladi (0 yoki 1)
+                    onChange={(newStatus) =>
+                        handleStatusChange(record.id, newStatus)
+                    }>
+                    <Option value={0}>0</Option> {/* 0 statusi uchun */}
+                    <Option value={1}>1</Option> {/* 1 statusi uchun */}
+                </Select>
+            ),
+        },
+
+        {
             title: 'Tahrirlash',
             key: 'tahrirlash',
-            render: (text, record) => (
+            render: (_, record) => (
                 <Button type='link' onClick={() => openDrawer(record)}>
                     Tahrirlash
                 </Button>
@@ -153,7 +265,7 @@ const Tovarlar = () => {
         {
             title: "O'chirish",
             key: 'ochirish',
-            render: (text, record) => (
+            render: (_, record) => (
                 <Button
                     type='link'
                     danger
@@ -166,11 +278,17 @@ const Tovarlar = () => {
 
     return (
         <div>
+            <h1
+                className='cursor-pointer h-10 text-3xl'
+                onClick={() => window.history.back()}>
+                <i className='fa-solid fa-arrow-left text-5xl '>←</i>
+            </h1>
+
             <Button
-                className='ml-[90%]'
+                className='ml-[92%]'
                 type='primary'
                 onClick={() => openDrawer()}>
-                Qo'shish
+                qo'shish
             </Button>
 
             {loading ? (
@@ -193,9 +311,15 @@ const Tovarlar = () => {
                         <Button
                             type='primary'
                             onClick={() => {
-                                window.location.reload()
+                                window.location.reload();
                                 form.validateFields()
-                                    .then((values) => handleSave(values))
+                                    .then((values) => {
+                                        if (editMode) {
+                                            handleSave(values);
+                                        } else {
+                                            handleAdd(values);
+                                        }
+                                    })
                                     .catch((info) =>
                                         console.log(
                                             'Form validatsiyasida xato bor:',
@@ -222,6 +346,7 @@ const Tovarlar = () => {
                     <Form.Item
                         name='price_1'
                         label='Price_1'
+                        initialValue={currentTovar?.price_1 || '0'}
                         rules={[
                             {
                                 required: true,
@@ -233,6 +358,7 @@ const Tovarlar = () => {
                     <Form.Item
                         name='price_2'
                         label='Price_2'
+                        initialValue={currentTovar?.price_2 || '0'}
                         rules={[
                             {
                                 required: true,
@@ -244,6 +370,7 @@ const Tovarlar = () => {
                     <Form.Item
                         name='price_3'
                         label='Price_3'
+                        initialValue={currentTovar?.price_3 || '0'}
                         rules={[
                             {
                                 required: true,
@@ -252,8 +379,9 @@ const Tovarlar = () => {
                         ]}>
                         <Input placeholder='Narxni kiriting' />
                     </Form.Item>
+
                     <Form.Item
-                        name='valyuta'
+                        name='currency_id'
                         label='Valyuta'
                         rules={[
                             {
@@ -261,10 +389,13 @@ const Tovarlar = () => {
                                 message: 'Iltimos, valyutani tanlang!',
                             },
                         ]}>
-                        <select className='w-[90%]'>
-                            <option value='USD'>USD</option>
-                            <option value="SO'M">SO'M</option>
-                        </select>
+                        <Select placeholder='Valyutani tanlang'>
+                            {currency.map((option) => (
+                                <Option key={option.id} value={option.id}>
+                                    {option.name}
+                                </Option>
+                            ))}
+                        </Select>
                     </Form.Item>
                 </Form>
             </Drawer>
@@ -273,3 +404,4 @@ const Tovarlar = () => {
 };
 
 export default Tovarlar;
+// drawerdagi pricelarga ichiga yozilmasa 0 qiymat olib ketadiga qilib ber
