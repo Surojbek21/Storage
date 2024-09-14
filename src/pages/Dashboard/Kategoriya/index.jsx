@@ -11,9 +11,7 @@ const Kategoriya = () => {
     const [editMode, setEditMode] = useState(false);
     const [currentId, setCurrentId] = useState(null);
     const [form] = Form.useForm();
-    const {id} = useParams();
-    // Ma'lumotlarni yuklash
-    const fetchData = async () => {
+    const {id} = useParams();    const fetchData = async () => {
         try {
             const req = await axios.get('http://localhost:3000/category/all');
             

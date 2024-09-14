@@ -1,29 +1,32 @@
-import { ApiTwoTone, CalculatorTwoTone, DiffTwoTone, FolderOpenTwoTone, FundTwoTone, SettingTwoTone } from "@ant-design/icons";
+import {
+    ApiTwoTone,
+    CalculatorTwoTone,
+    DiffTwoTone,
+    FolderOpenTwoTone,
+    FundTwoTone,
+    SettingTwoTone,
+} from '@ant-design/icons';
 
 export const menu = [
     {
         id: 1,
         name: 'Справочник',
         path: '/dashboard',
-        img: <FolderOpenTwoTone/>,
+        img: <FolderOpenTwoTone />,
         children: [
             {
                 id: 2,
-                title: 'Категория',
+                title: 'Товары',
                 path: '/catalog',
             },
-           
-            {
-                id: 4,
-                title: 'Товары',
-                path: '/tovar',
-            },
+
+            
             {
                 id: 5,
                 title: 'Контрагенты',
                 path: '/kontragent',
             },
-           
+
         ],
     },
 
@@ -60,7 +63,7 @@ export const menu = [
         id: 16,
         name: 'отчеты',
         path: '/statics',
-        img: <FundTwoTone/>,
+        img: <FundTwoTone />,
         children: [
             {
                 id: 17,
@@ -107,7 +110,7 @@ export const menu = [
         id: 24,
         name: 'Анализи',
         path: '/tahlil',
-        img: <CalculatorTwoTone/>,
+        img: <CalculatorTwoTone />,
         children: [
             {
                 id: 25,
@@ -120,7 +123,7 @@ export const menu = [
         id: 26,
         name: 'сервис',
         path: '/server',
-        img: <ApiTwoTone/>,
+        img: <ApiTwoTone />,
         children: [
             {
                 id: 27,
@@ -169,7 +172,7 @@ export const menu = [
         id: 35,
         name: 'Settings',
         path: '/settings',
-        img: <SettingTwoTone/>,
+        img: <SettingTwoTone />,
         children: [],
     },
 ];

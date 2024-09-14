@@ -243,12 +243,12 @@ const Tovarlar = () => {
             key: 'status',
             render: (status, record) => (
                 <Select
-                    value={status} // Bu yerda status to'g'ridan-to'g'ri backenddan kelgan qiymat bo'ladi (0 yoki 1)
+                    value={status} 
                     onChange={(newStatus) =>
                         handleStatusChange(record.id, newStatus)
                     }>
-                    <Option value={0}>0</Option> {/* 0 statusi uchun */}
-                    <Option value={1}>1</Option> {/* 1 statusi uchun */}
+                    <Option className='bg-red-500' value={0}>0</Option> {/* 0 statusi uchun */}
+                    <Option className='bg-green-500' value={1}>1</Option> {/* 1 statusi uchun */}
                 </Select>
             ),
         },
