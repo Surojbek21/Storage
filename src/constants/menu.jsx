@@ -20,13 +20,11 @@ export const menu = [
                 path: '/catalog',
             },
 
-            
             {
                 id: 5,
                 title: 'Контрагенты',
-                path: '/kontragent',
+                path: '/counterparty',
             },
-
         ],
     },
 
@@ -44,7 +42,7 @@ export const menu = [
             {
                 id: 11,
                 title: 'курс валюты',
-                path: '/kurs',
+                path: '/currency',
             },
             {
                 id: 14,
@@ -55,7 +53,7 @@ export const menu = [
             {
                 id: 15,
                 title: 'Получитъ',
-                path: '/olish',
+                path: '/get',
             },
         ],
     },

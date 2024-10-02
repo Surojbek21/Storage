@@ -11,8 +11,12 @@ const AppRouters = () => {
         token: { colorBgContainer, borderRadiusLG },
     } = theme.useToken();
     return (
-        <Layout style={{ height: '100vh' }}>
-            <Sider trigger={null} collapsible collapsed={collapsed}>
+        <Layout style={{ height: '100% auto' }}>
+            <Sider
+                trigger={null}
+                collapsible
+                collapsed={collapsed}
+                className='h-screen '>
                 <div className='demo-logo-vertical' />
                 <div
                     style={{
@@ -36,7 +40,7 @@ const AppRouters = () => {
                             fontWeight: 'bold',
                             fontSize: '20px',
                         }}>
-                        Storage 
+                        Storage
                     </span>
                 </div>
                 <Menu

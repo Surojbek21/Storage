@@ -2,7 +2,10 @@ import Dashboard from '../pages/Dashboard/Dashboard';
 import Kategoriya from '../pages/Dashboard/Kategoriya';
 import Product from '../pages/Dashboard/Kategoriya/product';
 import Tovarlar from '../pages/Dashboard/Kategoriya/tovarlar';
-import Kontragent from '../pages/Dashboard/Kontragent/kontr';
+import Counterparty from '../pages/Dashboard/Kontragent/kontr';
+import Currency from '../pages/Document/currency/currency';
+import Get from '../pages/Document/get';
+import InputComponent from '../pages/Document/olish';
 
 export const menuList = [
     {
@@ -10,17 +13,15 @@ export const menuList = [
         path: '/dashboard',
         element: <Dashboard />,
     },
-
     {
         id: 2,
         path: '/catalog',
         element: <Kategoriya />,
     },
-
     {
         id: 3,
-        path: '/kontragent',
-        element: <Kontragent />,
+        path: '/counterparty',
+        element: <Counterparty />, // Updated path for customers and providers
     },
     {
         id: 4,
@@ -34,7 +35,17 @@ export const menuList = [
     },
     {
         id: 6,
-        path: "/kontr"
+        path: '/currency',
+        element: <Currency />,
     },
-
+    {
+        id: 7,
+        path: '/get',
+        element: <Get />,
+    },
+    {
+        id: 8,
+        path: '/get/:id',
+        element: <InputComponent />,
+    },
 ];

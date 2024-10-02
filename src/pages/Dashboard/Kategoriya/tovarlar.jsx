@@ -247,8 +247,8 @@ const Tovarlar = () => {
                     onChange={(newStatus) =>
                         handleStatusChange(record.id, newStatus)
                     }>
-                    <Option className='bg-red-500' value={0}>0</Option> {/* 0 statusi uchun */}
-                    <Option className='bg-green-500' value={1}>1</Option> {/* 1 statusi uchun */}
+                    <Option className='bg-red-500' value={0}>X</Option> {/* 0 statusi uchun */}
+                    <Option className='bg-green-500' value={1}>✓</Option> {/* 1 statusi uchun */}
                 </Select>
             ),
         },
@@ -404,4 +404,3 @@ const Tovarlar = () => {
 };
 
 export default Tovarlar;
-// drawerdagi pricelarga ichiga yozilmasa 0 qiymat olib ketadiga qilib ber
