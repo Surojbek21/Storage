@@ -14,11 +14,13 @@ function App() {
                     {
                         label: "Customer",
                         key: "customer",
+                        who: "1",
                         children: <Customer />
                     },
                     {
                         label: "Provider",
                         key: "provider",
+                        who: '2',
                         children: <Provider />
                     }
                 ]}

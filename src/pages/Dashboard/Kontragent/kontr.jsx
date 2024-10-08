@@ -1,75 +1,82 @@
-import { Table, Button, Drawer, Form, Input, InputNumber, Tabs } from 'antd';
+import {
+    Table,
+    Button,
+    Drawer,
+    Form,
+    Input,
+    InputNumber,
+    Tabs,
+    message,
+    Spin,
+} from 'antd';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const { TabPane } = Tabs;
-
 export function Counterparty() {
-    const [customersData, setCustomersData] = useState([]);
-    const [providersData, setProvidersData] = useState([]);
+    const [data, setData] = useState({ customers: [], providers: [] });
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
     const [form] = Form.useForm();
     const [activeTab, setActiveTab] = useState('customers');
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         fetchData();
     }, [activeTab]);
 
     const fetchData = async () => {
+        setLoading(true);
         try {
             const response = await axios.get(
                 'http://localhost:3000/counterparty/all'
             );
-            console.log(response.data.counterparty);
-            const counterpartyData = response.data.counterparty;
+            const counterparties = response.data.counterparty;
+            const customers = counterparties.filter((item) => item.who == 1);
+            const providers = counterparties.filter((item) => item.who == 2);
+            console.log(customers);
+            
 
-            if (activeTab === 'customers') {
-                const filteredCustomers = counterpartyData.filter(
-                    (item) => item.who === 1
-                );
-                setCustomersData(filteredCustomers);
-            } else {
-                const filteredProviders = counterpartyData.filter(
-                    (item) => item.who === 2
-                );
-                setProvidersData(filteredProviders);
-            }
+            setData({ customers, providers });
         } catch (error) {
             console.error("Ma'lumotlarni olishda xato:", error);
+            message.error("Ma'lumotlarni olishda xato");
+        } finally {
+            setLoading(false);
         }
     };
 
     const handleAdd = async (values) => {
         try {
             const whoValue = activeTab === 'customers' ? 1 : 2;
-
             await axios.post('http://localhost:3000/counterparty/insert', {
                 ...values,
                 who: whoValue,
                 status: 1,
             });
 
+            message.success("Yangi ma'lumot qo'shildi");
             fetchData();
+            setIsDrawerOpen(false);
         } catch (error) {
-            console.error('Error adding data:', error);
+            console.error("Ma'lumot qo'shishda xato:", error);
+            message.error("Ma'lumot qo'shishda xato");
         }
     };
 
     const handleEdit = async (values) => {
+        if (!editingItem) return;
         try {
-            if (editingItem) {
-                await axios.put(
-                    `http://localhost:3000/counterparty/update/${editingItem.id}`,
-                    values
-                );
-
-                fetchData();
-                setEditingItem(null);
-                setIsDrawerOpen(false);
-            }
+            await axios.put(
+                `http://localhost:3000/counterparty/update/${editingItem.id}`,
+                values
+            );
+            message.success("Ma'lumot yangilandi");
+            fetchData();
+            setEditingItem(null);
+            setIsDrawerOpen(false);
         } catch (error) {
-            console.error('Error editing data:', error);
+            console.error("Ma'lumot yangilashda xato:", error);
+            message.error("Ma'lumot yangilashda xato");
         }
     };
 
@@ -100,9 +107,11 @@ export function Counterparty() {
             await axios.delete(
                 `http://localhost:3000/counterparty/delete/${id}`
             );
+            message.success("Ma'lumot o'chirildi");
             fetchData();
         } catch (error) {
-            console.error('Error deleting data:', error);
+            console.error("Ma'lumot o'chirishda xato:", error);
+            message.error("Ma'lumot o'chirishda xato");
         }
     };
 
@@ -110,7 +119,7 @@ export function Counterparty() {
         { title: 'ID', dataIndex: 'id', key: 'id' },
         { title: 'Name', dataIndex: 'name', key: 'name' },
         { title: 'First Name', dataIndex: 'first_name', key: 'first_name' },
-        { title: 'Region', dataIndex: 'region', key: 'region' },
+        { title: 'Region', dataIndex: 'regions', key: 'regions' },
         { title: 'Address', dataIndex: 'address', key: 'address' },
         { title: 'Inn', dataIndex: 'inn', key: 'inn' },
         { title: 'stir', dataIndex: 'stir', key: 'stir' },
@@ -144,27 +153,33 @@ export function Counterparty() {
     return (
         <div>
             <Tabs activeKey={activeTab} onChange={setActiveTab}>
-                <TabPane tab='Customers' key='customers'>
-                    <Button type='primary' onClick={openAddDrawer}>
-                        Add New Customer
-                    </Button>
-                    <Table
-                        columns={columns}
-                        dataSource={customersData}
-                        rowKey='id'
-                    />
-                </TabPane>
-
-                <TabPane tab='Providers' key='providers'>
-                    <Button type='primary' onClick={openAddDrawer}>
-                        Add New Provider
-                    </Button>
-                    <Table
-                        columns={columns}
-                        dataSource={providersData}
-                        rowKey='id'
-                    />
-                </TabPane>
+                {[
+                    {
+                        key: 'customers',
+                        title: 'Customers',
+                        data: data.customers,
+                        buttonLabel: 'Add New Customer',
+                    },
+                    {
+                        key: 'providers',
+                        title: 'Providers',
+                        data: data.providers,
+                        buttonLabel: 'Add New Provider',
+                    },
+                ].map((tab) => (
+                    <Tabs.TabPane tab={tab.title} key={tab.key}>
+                        <Button type='primary' onClick={openAddDrawer}>
+                            {tab.buttonLabel}
+                        </Button>
+                        <Spin spinning={loading}>
+                            <Table
+                                columns={columns}
+                                dataSource={tab.data}
+                                rowKey='id'
+                            />
+                        </Spin>
+                    </Tabs.TabPane>
+                ))}
             </Tabs>
 
             <Drawer
@@ -198,7 +213,7 @@ export function Counterparty() {
                     <Form.Item name='first_name' label='First Name'>
                         <Input />
                     </Form.Item>
-                    <Form.Item name='region' label='Region'>
+                    <Form.Item name='regions' label='Region'>
                         <Input />
                     </Form.Item>
                     <Form.Item name='address' label='Address'>
