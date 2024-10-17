@@ -10,25 +10,32 @@ import {
     Input,
     Select,
     Popconfirm,
-    Pagination, // Pagination komponenti import qilindi
+    Pagination,
 } from 'antd';
 import { useLocation } from 'react-router-dom';
 
 const { Option } = Select;
 
 const InputComponent = () => {
-    const [inputList, setInputList] = useState([]); // Mahsulotlar ro'yxati
+    const [inputList, setInputList] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [addDrawerVisible, setAddDrawerVisible] = useState(false); // Qo'shish uchun Drawer
-    const [editDrawerVisible, setEditDrawerVisible] = useState(false); // Tahrirlash uchun Drawer
-    const [editingRecord, setEditingRecord] = useState(null); // Tahrirlanayotgan yozuv
-    const [form] = Form.useForm(); // Form instance
+    const [addDrawerVisible, setAddDrawerVisible] = useState(false);
+    const [editDrawerVisible, setEditDrawerVisible] = useState(false);
+    const [editingRecord, setEditingRecord] = useState(null);
+    const [form] = Form.useForm();
     const location = useLocation();
     const id = location.state.id;
 
+    const [products, setProducts] = useState([]);
+    const [fetchingProducts, setFetchingProducts] = useState(false);
+
     // Pagination holatlari
-    const [currentPage, setCurrentPage] = useState(1); // Hozirgi sahifa
-    const [pageSize] = useState(5); // Sahifadagi elementlar soni
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize] = useState(5);
+
+    // Umumiy son va summa holatlari
+    const [totalNumber, setTotalNumber] = useState(0);
+    const [totalPrice, setTotalPrice] = useState(0);
 
     // Mahsulotlarni olish
     const fetchInput = async () => {
@@ -37,8 +44,18 @@ const InputComponent = () => {
             const response = await axios.get(
                 `http://localhost:3000/input/all/${id}`
             );
-            setInputList(response.data.input);
-            console.log(response.data);
+            const data = response.data.input;
+            setInputList(data);
+
+            // Umumiy son va summani hisoblash
+            const totalNum = data.reduce((sum, item) => sum + item.number, 0);
+            const totalPrc = data.reduce(
+                (sum, item) => sum + item.price * item.number,
+                0
+            );
+
+            setTotalNumber(totalNum);
+            setTotalPrice(totalPrc);
         } catch (error) {
             console.error('Xato bor:', error);
             message.error('Mahsulotlarni yuklashda xato yuz berdi');
@@ -47,19 +64,25 @@ const InputComponent = () => {
         }
     };
 
+    const fetchProducts = async (searchValue = '') => {
+        setFetchingProducts(true);
+        try {
+            const response = await axios.get(
+                `http://localhost:3000/products/search?query=${searchValue}`
+            );
+            setProducts(response.data.products);
+        } catch (error) {
+            console.error('Mahsulotlarni olishda xato:', error);
+            message.error('Mahsulotlarni olishda xato.');
+        } finally {
+            setFetchingProducts(false);
+        }
+    };
+
     useEffect(() => {
         fetchInput();
+        fetchProducts(); // API dan mahsulotlarni yuklash
     }, [id]);
-
-    // Umumiy summa va sonni hisoblash
-    const totalNumber = inputList.reduce(
-        (acc, curr) => acc + (curr.number || 0),
-        0
-    );
-    const totalPrice = inputList.reduce(
-        (acc, curr) => acc + (curr.price || 0),
-        0
-    );
 
     // Ma'lumot qo'shish
     const handleAddInput = async (values) => {
@@ -74,8 +97,8 @@ const InputComponent = () => {
             console.error("Ma'lumotlarni qo'shishda xato:", error);
             message.error("Ma'lumotlarni qo'shishda xato.");
         }
-        setAddDrawerVisible(false); // Qo'shish uchun Drawer-ni yopish
         form.resetFields(); // Formni tozalash
+        setAddDrawerVisible(false); // Qo'shish uchun Drawer-ni yopish
     };
 
     // Ma'lumotni yangilash
@@ -91,8 +114,8 @@ const InputComponent = () => {
             console.error("Ma'lumotni yangilashda xato:", error);
             message.error("Ma'lumotni yangilashda xato.");
         }
-        setEditDrawerVisible(false); // Tahrirlash uchun Drawer-ni yopish
         form.resetFields(); // Formni tozalash
+        setEditDrawerVisible(false); // Tahrirlash uchun Drawer-ni yopish
     };
 
     // Qo'shish Drawer-ni ochish
@@ -177,7 +200,6 @@ const InputComponent = () => {
         },
     ];
 
-    // Sahifadagi ma'lumotlarni hisoblash
     const paginatedData = inputList.slice(
         (currentPage - 1) * pageSize,
         currentPage * pageSize
@@ -190,8 +212,6 @@ const InputComponent = () => {
                 onClick={() => window.history.back()}>
                 <i className='fa-solid fa-arrow-left text-5xl'>←</i>
             </h1>
-
-            {/* Qo'shish tugmasi */}
             <Button type='primary' onClick={openAddDrawer} className='ml-[90%]'>
                 Qo'shish
             </Button>
@@ -204,7 +224,7 @@ const InputComponent = () => {
                     dataSource={paginatedData}
                     rowKey='id'
                     pagination={false}
-                /> // Paginationni o'chirdik
+                />
             )}
 
             {/* Qo'shish uchun Drawer */}
@@ -220,10 +240,22 @@ const InputComponent = () => {
                         rules={[
                             {
                                 required: true,
-                                message: 'Mahsulot nomini kiriting',
+                                message: 'Mahsulot nomini tanlang',
                             },
                         ]}>
-                        <Input />
+                        <Select
+                            showSearch
+                            placeholder='Mahsulot tanlang'
+                            onSearch={fetchProducts}
+                            notFoundContent={
+                                fetchingProducts ? <Spin /> : null
+                            }>
+                            {products.map((product) => (
+                                <Option key={product.id} value={product.name}>
+                                    {product.name}
+                                </Option>
+                            ))}
+                        </Select>
                     </Form.Item>
                     <Form.Item
                         name='number'
@@ -247,79 +279,12 @@ const InputComponent = () => {
                         ]}>
                         <Input />
                     </Form.Item>
-                    <Form.Item
-                        name='currency'
-                        label='Valyuta'
-                        rules={[
-                            { required: true, message: 'Valyutani tanlang' },
-                        ]}>
-                        <Select>
-                            <Option value='USD'>USD</Option>
-                            <Option value='UZS'>UZS</Option>
-                        </Select>
+                    <Form.Item name='currency' label='Valyuta'>
+                        <Input />
                     </Form.Item>
                     <Form.Item>
                         <Button type='primary' htmlType='submit'>
                             Qo'shish
-                        </Button>
-                    </Form.Item>
-                </Form>
-            </Drawer>
-
-            {/* Tahrirlash uchun Drawer */}
-            <Drawer
-                title='Mahsulotni tahrirlash'
-                width={400}
-                onClose={() => setEditDrawerVisible(false)}
-                visible={editDrawerVisible}>
-                <Form layout='vertical' form={form} onFinish={handleEditInput}>
-                    <Form.Item
-                        name='product'
-                        label='Mahsulot nomi'
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Mahsulot nomini kiriting',
-                            },
-                        ]}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        name='number'
-                        label='Soni'
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Mahsulot sonini kiriting',
-                            },
-                        ]}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        name='price'
-                        label='Narxi'
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Mahsulot narxini kiriting',
-                            },
-                        ]}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        name='currency'
-                        label='Valyuta'
-                        rules={[
-                            { required: true, message: 'Valyutani tanlang' },
-                        ]}>
-                        <Select>
-                            <Option value='USD'>USD</Option>
-                            <Option value='UZS'>UZS</Option>
-                        </Select>
-                    </Form.Item>
-                    <Form.Item>
-                        <Button type='primary' htmlType='submit'>
-                            Yangilash
                         </Button>
                     </Form.Item>
                 </Form>

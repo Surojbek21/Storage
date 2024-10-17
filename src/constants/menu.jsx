@@ -36,8 +36,8 @@ export const menu = [
         children: [
             {
                 id: 10,
-                title: 'Чек',
-                path: '/chek',
+                title: 'продукты',
+                path: '/mahsulotlar',
             },
             {
                 id: 11,

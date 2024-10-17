@@ -10,15 +10,15 @@ import {
     Select,
     Spin,
     Input,
+    Popover,
     DatePicker,
-    Popover, // Popover import qilindi
+    Pagination,
 } from 'antd';
-import { Link, useNavigate, useParams } from 'react-router-dom';
-import Calendar from 'react-calendar'; // Kalendarni import qilish
-import 'react-calendar/dist/Calendar.css'; // Kalendar uslublarini import qilish
+import { Link } from 'react-router-dom';
 
 const { Option } = Select;
 const { Search } = Input;
+const { RangePicker } = DatePicker;
 
 const InputPro = () => {
     const [getData, setGetData] = useState([]);
@@ -29,9 +29,9 @@ const InputPro = () => {
     const [form] = Form.useForm();
     const [editingRecord, setEditingRecord] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [dateValue, setDateValue] = useState(new Date()); // Kalendar uchun holat
-    const navigate = useNavigate();
-    const { id } = useParams();
+    const [dateRange, setDateRange] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize] = useState(5);
 
     useEffect(() => {
         fetchData();
@@ -60,109 +60,127 @@ const InputPro = () => {
             const response = await axios.get(
                 'http://localhost:3000/input_pro/all1'
             );
-            const formattedData = response.data.input || response.data;
-            setCounterparty(Array.isArray(formattedData) ? formattedData : []);
+            const formattedData = response.data.input;
+            setCounterparty(formattedData);
         } catch (error) {
             console.error("Counterparty ma'lumotlarini olishda xato:", error);
             message.error("Counterparty ma'lumotlarini olishda xato.");
         }
     };
 
-    const handleAdd = async (values) => {
-        try {
-            await axios.post('http://localhost:3000/input_pro/insert', {
-                counterparty_id: values.counterparty,
-                yaratilgan_sana: values.yaratilgan_sana.toISOString(), // Sana formatlash
-                date: dateValue.toISOString(), // Kalendar sanasi
-            });
-            message.success("Ma'lumot muvaffaqiyatli qo'shildi!");
-            fetchData();
-            closeDrawer();
-        } catch (error) {
-            console.error("Ma'lumotlarni qo'shishda xato:", error);
-            message.error("Ma'lumotlarni qo'shishda xato.");
-        }
+    const handleSearch = (value = '') => {
+        const searchValue = value.trim().toLowerCase();
+        const filteredData = getData.filter((item) => {
+            const isMatch = item.name.toLowerCase().includes(searchValue);
+            const isInRange =
+                dateRange.length === 2
+                    ? new Date(item.yaratilgan_sana) >= dateRange[0] &&
+                      new Date(item.yaratilgan_sana) <= dateRange[1]
+                    : true;
+            return isMatch && isInRange;
+        });
+        setResults(filteredData);
+        setCurrentPage(1);
     };
 
-    const handleSave = async (values) => {
-        try {
-            const dataToUpdate = {
-                ...values,
-                yaratilgan_sana: values.yaratilgan_sana.toISOString(),
-                count: values.count || 0,
-                summ: values.summ || 0,
-                date: dateValue.toISOString(), // Kalendar sanasi
-            };
-
-            await axios.put(
-                `http://localhost:3000/input_pro/updated/${editingRecord.id}`,
-                dataToUpdate
-            );
-            message.success("Ma'lumot muvaffaqiyatli yangilandi!");
-            fetchData();
-            closeDrawer();
-        } catch (error) {
-            console.error("Ma'lumotlarni yangilashda xato:", error);
-            message.error("Ma'lumotlarni yangilashda xato.");
-        }
+    const handleRangePickerChange = (dates) => {
+        setDateRange(dates || []);
     };
 
-    const handleDelete = async (id) => {
-        try {
-            await axios.delete(`http://localhost:3000/input_pro/delete/${id}`);
-            fetchData();
-            message.success("Ma'lumot muvaffaqiyatli o'chirildi!");
-        } catch (error) {
-            console.error("Ma'lumotni o'chirishda xato:", error);
-            message.error("Ma'lumotni o'chirishda xato.");
-        }
+    const handleSearchWithDate = () => {
+        handleSearch();
     };
+
+    const handleChangePage = (page) => {
+        setCurrentPage(page);
+    };
+
+    const paginatedResults = results.slice(
+        (currentPage - 1) * pageSize,
+        currentPage * pageSize
+    );
 
     const openDrawer = (record) => {
-        if (record) {
-            setEditMode(true);
-            setEditingRecord(record);
-            form.setFieldsValue({
-                ...record,
-                yaratilgan_sana: record.yaratilgan_sana
-                    ? new Date(record.yaratilgan_sana)
-                    : null, // `moment` o'rniga to'g'ridan-to'g'ri `Date`
-            });
-            setDateValue(new Date(record.date)); // Kalendar sanasini o'rnatish
-        } else {
-            setEditMode(false);
-            form.resetFields();
-            setDateValue(new Date()); // Kalendar sanasini tozalash
-        }
+        setEditMode(!!record);
+        setEditingRecord(record);
+        form.setFieldsValue(record || {}); // Formani to'ldirish
         setDrawerVisible(true);
     };
 
     const closeDrawer = () => {
         setDrawerVisible(false);
-        setEditingRecord(null);
         form.resetFields();
+        setEditingRecord(null);
     };
 
-    const handleSearch = (value) => {
-        const searchValue = value.trim().toLowerCase();
-        if (searchValue) {
-            const filteredData = getData.filter((item) =>
-                item.name.toLowerCase().includes(searchValue)
+    const handleAdd = async (values) => {
+        try {
+            // Ma'lumotlarni tekshirish va formatlash
+            const formattedValues = {
+                ...values,
+                product_soni: values.product_soni || 0,
+                jami_soni: values.jami_soni || 0,
+                narx_dollar: values.narx_dollar || 0,
+                narx_sum: values.narx_sum || 0,
+            };
+
+            // API ga so'rov yuborish
+            await axios.post(
+                'http://localhost:3000/input_pro/insert',
+                formattedValues
             );
-            setResults(filteredData);
-        } else {
-            setResults(getData);
+            message.success("Ma'lumot muvaffaqiyatli qo'shildi!");
+
+            // Ma'lumotlarni yangilash
+            fetchData();
+
+            // Drawer'ni yopish
+            closeDrawer();
+        } catch (error) {
+            console.error("Ma'lumotni qo'shishda xato:", error);
+            message.error("Ma'lumotni qo'shishda xato.");
         }
     };
 
-    const handleCalendarChange = (value) => {
-        setDateValue(value);
-        // Filtering results based on selected date
-        const filteredData = getData.filter((item) => {
-            const itemDate = new Date(item.yaratilgan_sana).toDateString();
-            return itemDate === value.toDateString();
-        });
-        setResults(filteredData);
+    const handleUpdate = async (values) => {
+        try {
+            // Ma'lumotlarni tekshirish va formatlash
+            const formattedValues = {
+                ...values,
+                product_soni: values.product_soni || 0,
+                jami_soni: values.jami_soni || 0,
+                narx_dollar: values.narx_dollar || 0,
+                narx_sum: values.narx_sum || 0,
+            };
+
+            // API orqali yangilash
+            await axios.put(
+                `http://localhost:3000/input_pro/update/${editingRecord.id}`,
+                formattedValues
+            );
+            message.success("Ma'lumot muvaffaqiyatli yangilandi!");
+
+            // Ma'lumotlarni yangilash
+            fetchData();
+
+            // Drawer'ni yopish
+            closeDrawer();
+        } catch (error) {
+            console.error("Ma'lumotni yangilashda xato:", error);
+            message.error("Ma'lumotni yangilashda xato.");
+        }
+    };
+
+
+    const handleDelete = async (id) => {
+        try {
+            await axios.delete(`http://localhost:3000/input_pro/delete/${id}`);
+            message.success("Ma'lumot muvaffaqiyatli o'chirildi!");
+            fetchData(); // Yangilanish
+        } catch (error) {
+            console.error("Ma'lumotni o'chirishda xato:", error);
+            message.error("Ma'lumotni o'chirishda xato.");
+        }
     };
 
     const columns = [
@@ -176,11 +194,6 @@ const InputPro = () => {
                     <span>{text}</span>
                 </Link>
             ),
-        },
-        {
-            title: 'cp_id',
-            dataIndex: 'counterparty_id',
-            key: 'counterparty_id',
         },
         { title: 'Soni', dataIndex: 'product_soni', key: 'product_soni' },
         { title: 'Jami soni', dataIndex: 'jami_soni', key: 'jami_soni' },
@@ -233,16 +246,23 @@ const InputPro = () => {
                         onSearch={handleSearch}
                         style={{ width: 400 }}
                     />
-
-                    {/* Popover ichida Calendar */}
                     <Popover
                         content={
-                            <Calendar
-                                onChange={handleCalendarChange}
-                                value={dateValue}
-                            />
+                            <>
+                                <RangePicker
+                                    onChange={handleRangePickerChange}
+                                    value={dateRange}
+                                    format='YYYY-MM-DD'
+                                />
+                                <Button
+                                    type='primary'
+                                    style={{ marginTop: '8px' }}
+                                    onClick={handleSearchWithDate}>
+                                    Qidirish
+                                </Button>
+                            </>
                         }
-                        title='Sanani tanlang'
+                        title='Sanalarni tanlang'
                         trigger='click'>
                         <Button>Kalendardan tanlash</Button>
                     </Popover>
@@ -255,12 +275,33 @@ const InputPro = () => {
             {loading ? (
                 <Spin />
             ) : (
-                <Table columns={columns} dataSource={results} rowKey='id' />
+                <>
+                    <Table
+                        columns={columns}
+                        dataSource={paginatedResults}
+                        pagination={false}
+                    />
+                    <Pagination
+                        current={currentPage}
+                        pageSize={pageSize}
+                        total={results.length}
+                        onChange={handleChangePage}
+                        style={{
+                            marginTop: '16px',
+                            textAlign: 'right',
+                            justifyContent: 'end',
+                        }}
+                    />
+                </>
             )}
 
             <Drawer
-                title={editMode ? "Ma'lumotni yangilash" : "Ma'lumot qo'shish"}
-                visible={drawerVisible}
+                title={
+                    editMode
+                        ? "Ma'lumotni yangilash"
+                        : "Yangi ma'lumot qo'shish"
+                }
+                open={drawerVisible}
                 onClose={closeDrawer}
                 width={400}
                 footer={
@@ -276,7 +317,7 @@ const InputPro = () => {
                                 form.validateFields()
                                     .then((values) => {
                                         if (editMode) {
-                                            handleSave(values);
+                                            handleUpdate(values); // Yangilash uchun handleUpdate chaqiriladi
                                         } else {
                                             handleAdd(values);
                                         }
@@ -297,7 +338,14 @@ const InputPro = () => {
                         label='Counterparty'
                         name='counterparty'
                         rules={[{ required: true, message: 'Tanlang' }]}>
-                        <Select placeholder='Counterparty ni tanlang'>
+                        <Select
+                            placeholder='Counterparty ni tanlang'
+                            showSearch
+                            filterOption={(input, option) =>
+                                option.children
+                                    .toLowerCase()
+                                    .includes(input.toLowerCase())
+                            }>
                             {counterparty.map((cp) => (
                                 <Option key={cp.id} value={cp.id}>
                                     {cp.name}
