@@ -1,56 +1,90 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Button, Table, message, Drawer, Form, Input, Popconfirm } from 'antd';
+import {
+    Button,
+    Table,
+    message,
+    Drawer,
+    Form,
+    Input,
+    Popconfirm,
+    Select,
+} from 'antd';
+
+const { Option } = Select;
 
 const Mahsulot = () => {
     const [mahsulotlar, setMahsulotlar] = useState([]);
     const [searchResults, setSearchResults] = useState([]);
     const [drawerVisible, setDrawerVisible] = useState(false);
     const [form] = Form.useForm();
-    const [editingRecord, setEditingRecord] = useState(null); // Tahrirlash
-    const [loading, setLoading] = useState(true);
+    const [editingRecord, setEditingRecord] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [counterparty, setCounterparty] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
-        fetchMahsulotlar();
+        fetchMahsulotlar(); // Komponent yuklangan paytda mahsulotlarni olamiz
+        fetchCounterparties(); // Counterparties ma'lumotlarini olamiz
     }, []);
 
-    // Mahsulotlar ro'yxatini olish
-    const fetchMahsulotlar = async (query = '') => {
+    // Mahsulotlar ro'yxatini olish (barcha mahsulotlar)
+    const fetchMahsulotlar = async () => {
         setLoading(true);
         try {
             const response = await axios.get(
                 'http://localhost:3000/orders/all'
             );
             const allMahsulotlar = response.data.orders;
-
-            if (query) {
-                const filteredResults = allMahsulotlar.filter((order) =>
-                    order.name.toLowerCase().includes(query.toLowerCase())
-                );
-                setSearchResults(filteredResults);
-            } else {
-                setSearchResults(allMahsulotlar);
-            }
             setMahsulotlar(allMahsulotlar);
+            setSearchResults(allMahsulotlar);
         } catch (error) {
-            console.error("Ma'lumotlarni olishda xato:", error);
-            message.error("Ma'lumotlarni olishda xato.");
+            console.error("mahsulot ma'lumotlarini olishda xato:", error);
+            message.error("mahsulot ma'lumotlarini olishda xato.");
         } finally {
             setLoading(false);
         }
     };
 
-    const handleSearch = (value) => {
-        setSearchQuery(value);
-        fetchMahsulotlar(value);
+    // Counterparties ma'lumotlarini olish
+    const fetchCounterparties = async () => {
+        try {
+            const response = await axios.get(
+                'http://localhost:3000/counterparty/all'
+            );
+            setCounterparty(response.data.counterparty || []);
+        } catch (error) {
+            console.error("Counterparties ma'lumotlarini olishda xato:", error);
+            message.error("Counterparties ma'lumotlarini olishda xato.");
+        }
+    };
+
+    // Qidiruv funksiyasi (alohida API chaqiruv)
+    const handleSearch = async (query) => {
+        setSearchQuery(query); // Qidiruv so'zini saqlaymiz
+        setLoading(true); // Yuklash holati
+        try {
+            const response = await axios.get(
+                `http://localhost:3000/orders/search`,
+                {
+                    params: { search: query },
+                }
+            );
+            const searchResults = response.data.orders || [];
+            setSearchResults(searchResults); // Qidiruv natijalarini o'rnatamiz
+        } catch (error) {
+            console.error('Qidiruvda xato:', error);
+            message.error('Qidiruvda xato.');
+        } finally {
+            setLoading(false); // Yuklash holatini tugatamiz
+        }
     };
 
     const handleAdd = async (values) => {
         try {
             await axios.post('http://localhost:3000/orders/insert', values);
             message.success("Mahsulot muvaffaqiyatli qo'shildi!");
-            fetchMahsulotlar();
+            fetchMahsulotlar(); // Ro'yxatni yangilaymiz
             closeDrawer(); // Yangi mahsulotdan keyin Drawer ni yopish
         } catch (error) {
             console.error("Mahsulotni qo'shishda xato:", error);
@@ -65,7 +99,7 @@ const Mahsulot = () => {
                 values
             );
             message.success('Mahsulot muvaffaqiyatli yangilandi!');
-            fetchMahsulotlar();
+            fetchMahsulotlar(); // Ro'yxatni yangilaymiz
             closeDrawer(); // Tahrirlashdan keyin Drawer ni yopish
         } catch (error) {
             console.error('Mahsulotni yangilashda xato:', error);
@@ -77,7 +111,7 @@ const Mahsulot = () => {
         try {
             await axios.delete(`http://localhost:3000/orders/delete/${id}`);
             message.success("Mahsulot muvaffaqiyatli o'chirildi!");
-            fetchMahsulotlar();
+            fetchMahsulotlar(); // Ro'yxatni yangilaymiz
         } catch (error) {
             console.error("Mahsulotni o'chirishda xato:", error);
             message.error("Mahsulotni o'chirishda xato.");
@@ -108,6 +142,12 @@ const Mahsulot = () => {
         { title: 'Doller', dataIndex: 'narx_dollar', key: 'narx_dollar' },
         { title: "So'm", dataIndex: 'narx_sum', key: 'narx_sum' },
         {
+            title: 'Yaratilgan Sana',
+            dataIndex: 'created',
+            key: 'created',
+            render: (text) => new Date(text).toLocaleDateString(), // Sana formatini o'zgartirish
+        },
+        {
             title: 'Tahrirlash',
             key: 'edit',
             render: (_, record) => (
@@ -137,19 +177,19 @@ const Mahsulot = () => {
         <div>
             <Input.Search
                 placeholder='Qidiruv...'
-                onSearch={handleSearch}
+                onSearch={handleSearch} // Qidiruv uchun API chaqiruvini ishlatamiz
                 style={{ width: 300, marginBottom: 16 }}
                 allowClear
             />
             <Button
                 type='primary'
                 onClick={() => openDrawer()}
-                className='ml-[88%]'>
+                style={{ marginBottom: 16 }}>
                 Qo'shish
             </Button>
 
             <Table
-                dataSource={searchResults}
+                dataSource={searchResults} // Filtirlangan natijalar yoki barcha mahsulotlar
                 columns={columns}
                 rowKey='id'
                 loading={loading}
@@ -166,12 +206,30 @@ const Mahsulot = () => {
                     layout='vertical'
                     onFinish={editingRecord ? handleUpdate : handleAdd}>
                     <Form.Item
-                        name='name'
-                        label='Mahsulot Nomi'
+                        name='counterparty'
+                        label='Counterparty'
                         rules={[
-                            { required: true, message: 'Nomini kiriting!' },
+                            {
+                                required: true,
+                                message: 'Counterparty ni tanlang!',
+                            },
                         ]}>
-                        <Input placeholder='Nomini kiriting' />
+                        <Select
+                            placeholder='Counterparty tanlang yoki yozing'
+                            showSearch
+                            filterOption={(input, option) =>
+                                option.children
+                                    .toLowerCase()
+                                    .includes(input.toLowerCase())
+                            }>
+                            {counterparty.map((counterparty) => (
+                                <Option
+                                    key={counterparty.id}
+                                    value={counterparty.name}>
+                                    {counterparty.name}
+                                </Option>
+                            ))}
+                        </Select>
                     </Form.Item>
                     <Form.Item>
                         <Button type='primary' htmlType='submit'>

@@ -41,7 +41,7 @@ export const menuList = [
     },
     {
         id: 8,
-        path: '/get/:id',
+        path: '/get/olish/:id',
         element: <InputComponent />,
     },
     {

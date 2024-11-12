@@ -7,12 +7,11 @@ import {
     Button,
     Drawer,
     Form,
-    Input,
     Select,
     Popconfirm,
     Pagination,
 } from 'antd';
-import { useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 const { Option } = Select;
 
@@ -23,8 +22,7 @@ const InputComponent = () => {
     const [editDrawerVisible, setEditDrawerVisible] = useState(false);
     const [editingRecord, setEditingRecord] = useState(null);
     const [form] = Form.useForm();
-    const location = useLocation();
-    const id = location.state.id;
+    const { id } = useParams();
 
     const [products, setProducts] = useState([]);
     const [fetchingProducts, setFetchingProducts] = useState(false);
@@ -38,6 +36,7 @@ const InputComponent = () => {
     const [totalPrice, setTotalPrice] = useState(0);
 
     // Mahsulotlarni olish
+    // Mahsulotlarni olish
     const fetchInput = async () => {
         setLoading(true);
         try {
@@ -46,7 +45,6 @@ const InputComponent = () => {
             );
             const data = response.data.input;
             setInputList(data);
-
             // Umumiy son va summani hisoblash
             const totalNum = data.reduce((sum, item) => sum + item.number, 0);
             const totalPrc = data.reduce(
@@ -64,25 +62,30 @@ const InputComponent = () => {
         }
     };
 
-    const fetchProducts = async (searchValue = '') => {
+    // Mahsulotlarni olish
+    const fetchProductsData = async (values) => {
         setFetchingProducts(true);
         try {
             const response = await axios.get(
-                `http://localhost:3000/products/search?query=${searchValue}`
+                'http://localhost:3000/input/product',
+                values
             );
-            setProducts(response.data.products);
+            setProducts(response.data.input);
+            console.log(values);
         } catch (error) {
             console.error('Mahsulotlarni olishda xato:', error);
-            message.error('Mahsulotlarni olishda xato.');
+            message.error('Mahsulotlarni olishda xato');
         } finally {
             setFetchingProducts(false);
         }
     };
 
+    // Mahsulotlarni qidirish
+
     useEffect(() => {
         fetchInput();
-        fetchProducts(); // API dan mahsulotlarni yuklash
-    }, [id]);
+        fetchProductsData(); // API dan mahsulotlarni yuklash
+    }, []);
 
     // Ma'lumot qo'shish
     const handleAddInput = async (values) => {
@@ -92,13 +95,15 @@ const InputComponent = () => {
                 values
             );
             message.success("Ma'lumot muvaffaqiyatli qo'shildi!");
-            fetchInput();
+            // Ma'lumotlarni yangilash
+            await fetchInput(); // Yangilangan ma'lumotlar uchun
         } catch (error) {
             console.error("Ma'lumotlarni qo'shishda xato:", error);
             message.error("Ma'lumotlarni qo'shishda xato.");
+        } finally {
+            form.resetFields(); // Formni tozalash
+            setAddDrawerVisible(false); // Qo'shish uchun Drawer-ni yopish
         }
-        form.resetFields(); // Formni tozalash
-        setAddDrawerVisible(false); // Qo'shish uchun Drawer-ni yopish
     };
 
     // Ma'lumotni yangilash
@@ -109,18 +114,14 @@ const InputComponent = () => {
                 values
             );
             message.success("Ma'lumot muvaffaqiyatli yangilandi!");
-            fetchInput();
+            fetchInput(); // Yangilangan ma'lumotlarni olish
         } catch (error) {
             console.error("Ma'lumotni yangilashda xato:", error);
             message.error("Ma'lumotni yangilashda xato.");
+        } finally {
+            form.resetFields(); // Formni tozalash
+            setEditDrawerVisible(false); // Tahrirlash uchun Drawer-ni yopish
         }
-        form.resetFields(); // Formni tozalash
-        setEditDrawerVisible(false); // Tahrirlash uchun Drawer-ni yopish
-    };
-
-    // Qo'shish Drawer-ni ochish
-    const openAddDrawer = () => {
-        setAddDrawerVisible(true);
     };
 
     // Tahrirlash Drawer-ni ochish
@@ -128,13 +129,17 @@ const InputComponent = () => {
         setEditingRecord(record);
         form.setFieldsValue({
             product: record.product,
-            number: record.number,
-            price: record.price,
-            currency: record.currency,
         });
         setEditDrawerVisible(true);
     };
 
+    useEffect(() => {
+        if (editingRecord) {
+            form.setFieldsValue({
+                product: editingRecord.product,
+            });
+        }
+    }, [editingRecord]);
     // Mahsulotni o'chirish
     const handleDeleteInput = async (inputId) => {
         try {
@@ -154,9 +159,19 @@ const InputComponent = () => {
             key: 'id',
         },
         {
+            title: 'Product ID',
+            dataIndex: 'product_id',
+            key: 'product_id',
+        },
+        {
             title: 'Product',
             dataIndex: 'product',
             key: 'product',
+        },
+        {
+            title: 'Provider ID',
+            dataIndex: 'provider_id',
+            key: 'provider_id',
         },
         {
             title: 'Number',
@@ -167,6 +182,11 @@ const InputComponent = () => {
             title: 'Price',
             dataIndex: 'price',
             key: 'price',
+        },
+        {
+            title: 'Currency ID',
+            dataIndex: 'currency_id',
+            key: 'currency_id',
         },
         {
             title: 'Currency',
@@ -212,7 +232,10 @@ const InputComponent = () => {
                 onClick={() => window.history.back()}>
                 <i className='fa-solid fa-arrow-left text-5xl'>←</i>
             </h1>
-            <Button type='primary' onClick={openAddDrawer} className='ml-[90%]'>
+            <Button
+                type='primary'
+                onClick={() => setAddDrawerVisible(true)}
+                className='ml-[90%]'>
                 Qo'shish
             </Button>
 
@@ -227,7 +250,6 @@ const InputComponent = () => {
                 />
             )}
 
-            {/* Qo'shish uchun Drawer */}
             <Drawer
                 title='Mahsulot qo‘shish'
                 width={400}
@@ -246,7 +268,6 @@ const InputComponent = () => {
                         <Select
                             showSearch
                             placeholder='Mahsulot tanlang'
-                            onSearch={fetchProducts}
                             notFoundContent={
                                 fetchingProducts ? <Spin /> : null
                             }>
@@ -257,31 +278,6 @@ const InputComponent = () => {
                             ))}
                         </Select>
                     </Form.Item>
-                    <Form.Item
-                        name='number'
-                        label='Soni'
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Mahsulot sonini kiriting',
-                            },
-                        ]}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item
-                        name='price'
-                        label='Narxi'
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Mahsulot narxini kiriting',
-                            },
-                        ]}>
-                        <Input />
-                    </Form.Item>
-                    <Form.Item name='currency' label='Valyuta'>
-                        <Input />
-                    </Form.Item>
                     <Form.Item>
                         <Button type='primary' htmlType='submit'>
                             Qo'shish
@@ -290,7 +286,6 @@ const InputComponent = () => {
                 </Form>
             </Drawer>
 
-            {/* Pagination komponenti */}
             <Pagination
                 current={currentPage}
                 pageSize={pageSize}
@@ -303,24 +298,41 @@ const InputComponent = () => {
                 }}
             />
 
-            <div
-                style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    marginTop: '30px',
-                    marginBottom: '20px',
-                }}>
-                <div>
-                    <p>
-                        <strong>Umumiy son:</strong> {totalNumber}
-                    </p>
-                </div>
-                <div className='ml-5'>
-                    <p>
-                        <strong>Umumiy summa:</strong> {totalPrice}
-                    </p>
-                </div>
-            </div>
+            <Drawer
+                title='Mahsulot tahrirlash'
+                width={400}
+                onClose={() => setEditDrawerVisible(false)}
+                visible={editDrawerVisible}>
+                <Form layout='vertical' form={form} onFinish={handleEditInput}>
+                    <Form.Item
+                        name='product'
+                        label='Mahsulot nomi'
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Mahsulot nomini tanlang',
+                            },
+                        ]}>
+                        <Select
+                            showSearch
+                            placeholder='Mahsulot tanlang'
+                            notFoundContent={
+                                fetchingProducts ? <Spin /> : null
+                            }>
+                            {products.map((product) => (
+                                <Option key={product.id} value={product.id}>
+                                    {product.name}
+                                </Option>
+                            ))}
+                        </Select>
+                    </Form.Item>
+                    <Form.Item>
+                        <Button type='primary' htmlType='submit'>
+                            Tahrirlash
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Drawer>
         </div>
     );
 };

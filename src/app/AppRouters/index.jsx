@@ -50,7 +50,7 @@ const AppRouters = () => {
                     items={menu.map(({ id, name, path, children, img }) => {
                         if (children) {
                             return {
-                                key: id,
+                                 key: id,
                                 label: (
                                     <Link to={path} className='flex gap-2'>
                                         {img}

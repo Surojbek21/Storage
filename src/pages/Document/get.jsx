@@ -10,9 +10,8 @@ import {
     Select,
     Spin,
     Input,
-    Popover,
-    DatePicker,
     Pagination,
+    DatePicker,
 } from 'antd';
 import { Link } from 'react-router-dom';
 
@@ -29,20 +28,19 @@ const InputPro = () => {
     const [form] = Form.useForm();
     const [editingRecord, setEditingRecord] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [dateRange, setDateRange] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize] = useState(5);
 
     useEffect(() => {
         fetchData();
-        fetchCounterpartyData();
+        fetchCounterparty();
     }, []);
 
     const fetchData = async () => {
         setLoading(true);
         try {
             const response = await axios.get(
-                'http://localhost:3000/input_pro/all'
+                'http://localhost:3000/input_pro/all1'
             );
             const formattedData = response.data.input;
             setGetData(formattedData);
@@ -55,55 +53,82 @@ const InputPro = () => {
         }
     };
 
-    const fetchCounterpartyData = async () => {
+    const fetchCounterparty = async () => {
         try {
             const response = await axios.get(
-                'http://localhost:3000/input_pro/all1'
+                'http://localhost:3000/input_pro/getcustomer'
             );
-            const formattedData = response.data.input;
-            setCounterparty(formattedData);
+            setCounterparty(response.data.input);
         } catch (error) {
             console.error("Counterparty ma'lumotlarini olishda xato:", error);
             message.error("Counterparty ma'lumotlarini olishda xato.");
         }
     };
 
-    const handleSearch = (value = '') => {
-        const searchValue = value.trim().toLowerCase();
-        const filteredData = getData.filter((item) => {
-            const isMatch = item.name.toLowerCase().includes(searchValue);
-            const isInRange =
-                dateRange.length === 2
-                    ? new Date(item.yaratilgan_sana) >= dateRange[0] &&
-                      new Date(item.yaratilgan_sana) <= dateRange[1]
-                    : true;
-            return isMatch && isInRange;
+    const handleSearch = async (value) => {
+        const searchValue = value.trim();
+        if (!searchValue) {
+            setResults(getData);
+            return;
+        }
+        setLoading(true);
+        try {
+            const response = await axios.get(
+                'http://localhost:3000/input_pro/search1',
+                {
+                    params: { name: searchValue },
+                }
+            );
+            const searchResults = response.data.input;
+            if (searchResults.length === 0) {
+                message.warning('Qidiruv natijalari topilmadi.');
+            }
+            setResults(searchResults);
+            setCurrentPage(1);
+        } catch (error) {
+            console.error('Qidiruvda xato:', error);
+            message.error('Qidiruvda xato yuz berdi.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+    // time
+    
+
+    const handleDateRangeChange = (dates) => {
+        if (!dates || dates.length !== 2) return;
+
+        const [startDate, endDate] = dates;
+
+        const formattedStartDate = startDate.startOf('day').toDate();
+        const formattedEndDate = endDate.endOf('day').toDate();
+
+        const filteredResults = getData.filter((item) => {
+            const itemDate = new Date(item.yaratilgan_sana);
+            return (
+                itemDate >= formattedStartDate && itemDate <= formattedEndDate
+            );
         });
-        setResults(filteredData);
+
+        setResults(filteredResults);
         setCurrentPage(1);
     };
 
-    const handleRangePickerChange = (dates) => {
-        setDateRange(dates || []);
-    };
-
-    const handleSearchWithDate = () => {
-        handleSearch();
-    };
-
-    const handleChangePage = (page) => {
-        setCurrentPage(page);
-    };
-
+    // Filtrlangan natijalarni sahifalash
     const paginatedResults = results.slice(
         (currentPage - 1) * pageSize,
         currentPage * pageSize
     );
 
+    const handleChangePage = (page) => {
+        setCurrentPage(page);
+    };
     const openDrawer = (record) => {
         setEditMode(!!record);
         setEditingRecord(record);
-        form.setFieldsValue(record || {}); // Formani to'ldirish
+        form.setFieldsValue(record || {});
         setDrawerVisible(true);
     };
 
@@ -115,26 +140,9 @@ const InputPro = () => {
 
     const handleAdd = async (values) => {
         try {
-            // Ma'lumotlarni tekshirish va formatlash
-            const formattedValues = {
-                ...values,
-                product_soni: values.product_soni || 0,
-                jami_soni: values.jami_soni || 0,
-                narx_dollar: values.narx_dollar || 0,
-                narx_sum: values.narx_sum || 0,
-            };
-
-            // API ga so'rov yuborish
-            await axios.post(
-                'http://localhost:3000/input_pro/insert',
-                formattedValues
-            );
+            await axios.post('http://localhost:3000/input_pro/insert', values);
             message.success("Ma'lumot muvaffaqiyatli qo'shildi!");
-
-            // Ma'lumotlarni yangilash
             fetchData();
-
-            // Drawer'ni yopish
             closeDrawer();
         } catch (error) {
             console.error("Ma'lumotni qo'shishda xato:", error);
@@ -144,26 +152,12 @@ const InputPro = () => {
 
     const handleUpdate = async (values) => {
         try {
-            // Ma'lumotlarni tekshirish va formatlash
-            const formattedValues = {
-                ...values,
-                product_soni: values.product_soni || 0,
-                jami_soni: values.jami_soni || 0,
-                narx_dollar: values.narx_dollar || 0,
-                narx_sum: values.narx_sum || 0,
-            };
-
-            // API orqali yangilash
             await axios.put(
                 `http://localhost:3000/input_pro/update/${editingRecord.id}`,
-                formattedValues
+                values
             );
             message.success("Ma'lumot muvaffaqiyatli yangilandi!");
-
-            // Ma'lumotlarni yangilash
             fetchData();
-
-            // Drawer'ni yopish
             closeDrawer();
         } catch (error) {
             console.error("Ma'lumotni yangilashda xato:", error);
@@ -171,12 +165,11 @@ const InputPro = () => {
         }
     };
 
-
     const handleDelete = async (id) => {
         try {
             await axios.delete(`http://localhost:3000/input_pro/delete/${id}`);
             message.success("Ma'lumot muvaffaqiyatli o'chirildi!");
-            fetchData(); // Yangilanish
+            fetchData();
         } catch (error) {
             console.error("Ma'lumotni o'chirishda xato:", error);
             message.error("Ma'lumotni o'chirishda xato.");
@@ -189,16 +182,32 @@ const InputPro = () => {
             title: 'Имя',
             dataIndex: 'name',
             key: 'name',
-            render: (text, record) => (
-                <Link to={`/get/${record.id}`} state={{ id: record.id }}>
-                    <span>{text}</span>
+            render: (link, a) => (
+                <Link to={`/get/olish/${a.id}`} state={{ id: a.id }}>
+                    {link}
                 </Link>
             ),
         },
-        { title: 'Soni', dataIndex: 'product_soni', key: 'product_soni' },
-        { title: 'Jami soni', dataIndex: 'jami_soni', key: 'jami_soni' },
-        { title: 'Dollar', dataIndex: 'narx_dollar', key: 'narx_dollar' },
-        { title: 'Summa', dataIndex: 'narx_sum', key: 'narx_sum' },
+        {
+            title: 'Product Soni',
+            dataIndex: 'status_1_product_soni',
+            key: 'status_1_product_soni',
+        },
+        {
+            title: 'Jami soni',
+            dataIndex: 'status_1_jami_soni',
+            key: 'status_1_jami_soni',
+        },
+        {
+            title: 'Dollar',
+            dataIndex: 'status_1_narx_dollar',
+            key: 'status_1_narx_dollar',
+        },
+        {
+            title: 'Summa',
+            dataIndex: 'status_1_narx_sum',
+            key: 'status_1_narx_sum',
+        },
         {
             title: 'Дата создания',
             dataIndex: 'yaratilgan_sana',
@@ -239,34 +248,20 @@ const InputPro = () => {
                     justifyContent: 'space-between',
                     marginBottom: 16,
                 }}>
-                <div style={{ display: 'flex', gap: '16px' }}>
+                <div style={{ display: 'flex', marginBottom: 16 }}>
                     <Search
                         placeholder='Qidiruv...'
                         enterButton
                         onSearch={handleSearch}
-                        style={{ width: 400 }}
+                        style={{ width: 300, marginRight: '10px' }}
                     />
-                    <Popover
-                        content={
-                            <>
-                                <RangePicker
-                                    onChange={handleRangePickerChange}
-                                    value={dateRange}
-                                    format='YYYY-MM-DD'
-                                />
-                                <Button
-                                    type='primary'
-                                    style={{ marginTop: '8px' }}
-                                    onClick={handleSearchWithDate}>
-                                    Qidirish
-                                </Button>
-                            </>
-                        }
-                        title='Sanalarni tanlang'
-                        trigger='click'>
-                        <Button>Kalendardan tanlash</Button>
-                    </Popover>
+                    <RangePicker
+                        style={{ marginLeft: '30px', width: 'auto' }}
+                        onChange={handleDateRangeChange}
+                        format='YYYY-MM-DD'
+                    />
                 </div>
+
                 <Button type='primary' onClick={() => openDrawer(null)}>
                     Qo'shish
                 </Button>
@@ -283,75 +278,42 @@ const InputPro = () => {
                     />
                     <Pagination
                         current={currentPage}
-                        pageSize={pageSize}
+                        className='ml-[75%]'
                         total={results.length}
+                        pageSize={pageSize}
                         onChange={handleChangePage}
-                        style={{
-                            marginTop: '16px',
-                            textAlign: 'right',
-                            justifyContent: 'end',
-                        }}
                     />
                 </>
             )}
 
             <Drawer
-                title={
-                    editMode
-                        ? "Ma'lumotni yangilash"
-                        : "Yangi ma'lumot qo'shish"
-                }
-                open={drawerVisible}
+                title={editMode ? 'Tahrirlash' : "Qo'shish"}
+                visible={drawerVisible}
                 onClose={closeDrawer}
-                width={400}
-                footer={
-                    <div style={{ textAlign: 'right' }}>
-                        <Button
-                            onClick={closeDrawer}
-                            style={{ marginRight: 8 }}>
-                            Bekor qilish
-                        </Button>
-                        <Button
-                            type='primary'
-                            onClick={() => {
-                                form.validateFields()
-                                    .then((values) => {
-                                        if (editMode) {
-                                            handleUpdate(values); // Yangilash uchun handleUpdate chaqiriladi
-                                        } else {
-                                            handleAdd(values);
-                                        }
-                                    })
-                                    .catch((info) =>
-                                        console.log(
-                                            'Form validatsiyasida xato bor:',
-                                            info
-                                        )
-                                    );
-                            }}>
+                width={720}>
+                <Form
+                    form={form}
+                    onFinish={editMode ? handleUpdate : handleAdd}
+                    initialValues={editingRecord || {}}>
+                    
+
+                    <Form.Item
+                        label='Nomeni kiriting'
+                        name='counterparty_id'
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Iltimos, nom kiriting!',
+                            },
+                        ]}>
+                        <Input />
+                    </Form.Item>
+
+
+                    <Form.Item>
+                        <Button type='primary' htmlType='submit'>
                             {editMode ? 'Yangilash' : "Qo'shish"}
                         </Button>
-                    </div>
-                }>
-                <Form form={form} layout='vertical'>
-                    <Form.Item
-                        label='Counterparty'
-                        name='counterparty'
-                        rules={[{ required: true, message: 'Tanlang' }]}>
-                        <Select
-                            placeholder='Counterparty ni tanlang'
-                            showSearch
-                            filterOption={(input, option) =>
-                                option.children
-                                    .toLowerCase()
-                                    .includes(input.toLowerCase())
-                            }>
-                            {counterparty.map((cp) => (
-                                <Option key={cp.id} value={cp.id}>
-                                    {cp.name}
-                                </Option>
-                            ))}
-                        </Select>
                     </Form.Item>
                 </Form>
             </Drawer>
