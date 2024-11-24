@@ -7,6 +7,7 @@ import {
     Form,
     Input,
     InputNumber,
+    Select,
     message,
     Popconfirm,
 } from 'antd';
@@ -16,6 +17,7 @@ const Currency = () => {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
     const [form] = Form.useForm();
+    const [currency, setCurrency] = useState([]);
 
     useEffect(() => {
         fetchData();
@@ -54,7 +56,8 @@ const Currency = () => {
                     values
                 );
                 fetchData();
-                setEditingItem(false);
+                setCurrency(response.data),
+                setEditingItem(null);
                 setIsDrawerOpen(false);
                 message.success('Valyuta muvaffaqiyatli yangilandi!');
             }
@@ -65,8 +68,6 @@ const Currency = () => {
     };
 
     const handleDelete = async (id) => {
-        console.log(id);
-        
         try {
             await axios.delete(`http://localhost:3000/currency/deleted/${id}`);
             fetchData();
@@ -169,15 +170,24 @@ const Currency = () => {
                 }>
                 <Form form={form} layout='vertical'>
                     <Form.Item
-                        name='name'
-                        label='Nom'
+                        name='currency'
+                        label='Valyuta Turi'
                         rules={[
                             {
                                 required: true,
-                                message: 'Valyuta nomini kiriting!',
+                                message: 'Valyuta turini tanlang!',
                             },
                         ]}>
-                        <Input />
+                        <Select>
+                            {currency.map((currency) => (
+                                <Select.Option
+                                    key={currency.id}
+                                    value={currency.id}>
+                                    {currency.name} ({currency.code}
+                                    )
+                                </Select.Option>
+                            ))}
+                        </Select>
                     </Form.Item>
                     <Form.Item
                         name='exchange_rate'

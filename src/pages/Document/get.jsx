@@ -93,9 +93,7 @@ const InputPro = () => {
         }
     };
 
-
     // time
-    
 
     const handleDateRangeChange = (dates) => {
         if (!dates || dates.length !== 2) return;
@@ -212,7 +210,7 @@ const InputPro = () => {
             title: 'Дата создания',
             dataIndex: 'yaratilgan_sana',
             key: 'yaratilgan_sana',
-            render: (text) => new Date(text).toLocaleString(),
+            render: (text) => new Date(text).toLocaleDateString(),
         },
         {
             title: 'Tahrirlash',
@@ -267,38 +265,32 @@ const InputPro = () => {
                 </Button>
             </div>
 
-            {loading ? (
-                <Spin />
-            ) : (
-                <>
-                    <Table
-                        columns={columns}
-                        dataSource={paginatedResults}
-                        pagination={false}
-                    />
-                    <Pagination
-                        current={currentPage}
-                        className='ml-[75%]'
-                        total={results.length}
-                        pageSize={pageSize}
-                        onChange={handleChangePage}
-                    />
-                </>
-            )}
+            <>
+                <Table
+                    columns={columns}
+                    dataSource={paginatedResults}
+                    pagination={false}
+                />
+                <Pagination
+                    current={currentPage}
+                    className='ml-[75%]'
+                    total={results.length}
+                    pageSize={pageSize}
+                    onChange={handleChangePage}
+                />
+            </>
 
             <Drawer
                 title={editMode ? 'Tahrirlash' : "Qo'shish"}
                 visible={drawerVisible}
                 onClose={closeDrawer}
-                width={720}>
+                width={400}>
                 <Form
                     form={form}
                     onFinish={editMode ? handleUpdate : handleAdd}
                     initialValues={editingRecord || {}}>
-                    
-
                     <Form.Item
-                        label='Nomeni kiriting'
+                        label='Nomi'
                         name='counterparty_id'
                         rules={[
                             {
@@ -306,12 +298,18 @@ const InputPro = () => {
                                 message: 'Iltimos, nom kiriting!',
                             },
                         ]}>
-                        <Input />
+                        <Select placeholder='Nomini tanlang'> 
+                            {counterparty.map((counterparty) => (
+                                <Option key={counterparty.id} value={counterparty.id}>
+                                    {counterparty.name}
+                                </Option>
+                            ))}
+                            
+                        </Select>
                     </Form.Item>
 
-
                     <Form.Item>
-                        <Button type='primary' htmlType='submit'>
+                        <Button type='primary' htmlType='submit' className='ml-[75%]'>
                             {editMode ? 'Yangilash' : "Qo'shish"}
                         </Button>
                     </Form.Item>

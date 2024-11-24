@@ -10,6 +10,7 @@ import {
     Select,
     Popconfirm,
     Pagination,
+    Input,
 } from 'antd';
 import { useParams } from 'react-router-dom';
 
@@ -18,36 +19,37 @@ const { Option } = Select;
 const InputComponent = () => {
     const [inputList, setInputList] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [addDrawerVisible, setAddDrawerVisible] = useState(false);
-    const [editDrawerVisible, setEditDrawerVisible] = useState(false);
+    const [drawerVisible, setDrawerVisible] = useState(false);
     const [editingRecord, setEditingRecord] = useState(null);
-    const [form] = Form.useForm();
-    const { id } = useParams();
-
     const [products, setProducts] = useState([]);
     const [fetchingProducts, setFetchingProducts] = useState(false);
-
-    // Pagination holatlari
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize] = useState(5);
-
-    // Umumiy son va summa holatlari
     const [totalNumber, setTotalNumber] = useState(0);
     const [totalPrice, setTotalPrice] = useState(0);
 
-    // Mahsulotlarni olish
-    // Mahsulotlarni olish
+    const [form] = Form.useForm();
+    const { id } = useParams();
+
+    // Input data va mahsulotlar ro'yxatini olish
+    useEffect(() => {
+        fetchInput();
+        fetchProductsData();
+    }, []);
+
     const fetchInput = async () => {
         setLoading(true);
         try {
-            const response = await axios.get(
+            const { data } = await axios.get(
                 `http://localhost:3000/input/all/${id}`
             );
-            const data = response.data.input;
-            setInputList(data);
-            // Umumiy son va summani hisoblash
-            const totalNum = data.reduce((sum, item) => sum + item.number, 0);
-            const totalPrc = data.reduce(
+            setInputList(data.input);
+
+            const totalNum = data.input.reduce(
+                (sum, item) => sum + item.number,
+                0
+            );
+            const totalPrc = data.input.reduce(
                 (sum, item) => sum + item.price * item.number,
                 0
             );
@@ -62,89 +64,96 @@ const InputComponent = () => {
         }
     };
 
-    // Mahsulotlarni olish
-    const fetchProductsData = async (values) => {
-        setFetchingProducts(true);
-        try {
-            const response = await axios.get(
-                'http://localhost:3000/input/product',
-                values
-            );
-            setProducts(response.data.input);
-            console.log(values);
-        } catch (error) {
-            console.error('Mahsulotlarni olishda xato:', error);
-            message.error('Mahsulotlarni olishda xato');
-        } finally {
-            setFetchingProducts(false);
-        }
-    };
+   const fetchProductsData = async () => {
+       setFetchingProducts(true);
+       try {
+           const { data } = await axios.get(
+               'http://localhost:3000/input/product'
+           );
+           console.log('Fetched products data:', data.input); // data.input ni tekshirish
+           setProducts(data.input); // data.input bilan ishlash
+       } catch (error) {
+           console.error('Mahsulotlarni olishda xato:', error);
+           message.error('Mahsulotlarni olishda xato yuz berdi');
+       } finally {
+           setFetchingProducts(false);
+       }
+   };
 
-    // Mahsulotlarni qidirish
 
-    useEffect(() => {
-        fetchInput();
-        fetchProductsData(); // API dan mahsulotlarni yuklash
-    }, []);
 
-    // Ma'lumot qo'shish
-    const handleAddInput = async (values) => {
+    const insertInput = async (id, values) => {
         try {
             await axios.post(
                 `http://localhost:3000/input/insert/${id}`,
                 values
             );
             message.success("Ma'lumot muvaffaqiyatli qo'shildi!");
-            // Ma'lumotlarni yangilash
-            await fetchInput(); // Yangilangan ma'lumotlar uchun
         } catch (error) {
-            console.error("Ma'lumotlarni qo'shishda xato:", error);
-            message.error("Ma'lumotlarni qo'shishda xato.");
-        } finally {
-            form.resetFields(); // Formni tozalash
-            setAddDrawerVisible(false); // Qo'shish uchun Drawer-ni yopish
+            console.error('Insert API xatosi:', error);
+            message.error('Ma`lumotni qo`shishda xato yuz berdi.');
+            throw error;
         }
     };
 
-    // Ma'lumotni yangilash
-    const handleEditInput = async (values) => {
+    const handleFormSubmit = async (values) => {
         try {
-            await axios.put(
-                `http://localhost:3000/input/update/${editingRecord.id}`,
-                values
-            );
-            message.success("Ma'lumot muvaffaqiyatli yangilandi!");
-            fetchInput(); // Yangilangan ma'lumotlarni olish
+            // Product ID ni olamiz
+            const productId = values.product;
+
+            // Agar mavjud yozuvni tahrirlayotgan bo'lsak
+            if (editingRecord) {
+                await axios.put(
+                    `http://localhost:3000/input/update/${editingRecord.id}`, // Backenddagi URL
+                    {
+                        ...values,
+                        product_id: productId, // Mahsulot ID
+                        status: 1, // Majburiy qiymat
+                    }
+                );
+            } else {
+                // Yangi yozuv qo'shayotganda
+                await insertInput(id, {
+                    ...values,
+                    number: values.number || 1, // Default qiymat: 1
+                    price: values.price || 0, // Default qiymat: 0
+                    product_id: productId, // Mahsulot ID
+                    status: 1, // Default qiymat
+                });
+            }
+
+            // Ma'lumotlarni qaytadan yuklaymiz
+            await fetchInput();
+            message.success('Amaliyot muvaffaqiyatli bajarildi!');
         } catch (error) {
-            console.error("Ma'lumotni yangilashda xato:", error);
-            message.error("Ma'lumotni yangilashda xato.");
+            // Xatolikni konsolda ko'rsatamiz
+            console.error('Xato:', error.response?.data || error.message);
+            message.error(
+                error.response?.data?.error || 'Amaliyotda xato yuz berdi.'
+            );
         } finally {
-            form.resetFields(); // Formni tozalash
-            setEditDrawerVisible(false); // Tahrirlash uchun Drawer-ni yopish
+            // Forma tozalanadi va boshqa sozlamalar tiklanadi
+            form.resetFields();
+            setDrawerVisible(false);
+            setEditingRecord(null);
         }
     };
 
-    // Tahrirlash Drawer-ni ochish
+
     const openEditDrawer = (record) => {
         setEditingRecord(record);
         form.setFieldsValue({
-            product: record.product,
+            product: record.product.id,
+            number: record.number,
+            price: record.price,
         });
-        setEditDrawerVisible(true);
+        setDrawerVisible(true);
     };
 
-    useEffect(() => {
-        if (editingRecord) {
-            form.setFieldsValue({
-                product: editingRecord.product,
-            });
-        }
-    }, [editingRecord]);
-    // Mahsulotni o'chirish
     const handleDeleteInput = async (inputId) => {
         try {
             await axios.delete(`http://localhost:3000/input/delete/${inputId}`);
-            fetchInput(); // Mahsulotlarni qayta yuklash
+            fetchInput();
             message.success('Mahsulot o‘chirildi');
         } catch (error) {
             console.error('Xato bor:', error);
@@ -153,50 +162,22 @@ const InputComponent = () => {
     };
 
     const columns = [
-        {
-            title: 'ID',
-            dataIndex: 'id',
-            key: 'id',
-        },
-        {
-            title: 'Product ID',
-            dataIndex: 'product_id',
-            key: 'product_id',
-        },
+        { title: 'ID', dataIndex: 'id', key: 'id' },
         {
             title: 'Product',
             dataIndex: 'product',
             key: 'product',
+            // render: (product) => {
+            //     console.log('Product:', product); // product obyektini tekshirish
+            //     return product?.name || 'Mahsulot nomi mavjud emas'; // Mahsulot nomini ko'rsatish
+            // },
         },
-        {
-            title: 'Provider ID',
-            dataIndex: 'provider_id',
-            key: 'provider_id',
-        },
-        {
-            title: 'Number',
-            dataIndex: 'number',
-            key: 'number',
-        },
-        {
-            title: 'Price',
-            dataIndex: 'price',
-            key: 'price',
-        },
-        {
-            title: 'Currency ID',
-            dataIndex: 'currency_id',
-            key: 'currency_id',
-        },
-        {
-            title: 'Currency',
-            dataIndex: 'currency',
-            key: 'currency',
-        },
+
+        { title: 'Number', dataIndex: 'number', key: 'number' },
+        { title: 'Price', dataIndex: 'price', key: 'price' },
+        { title: 'Currency', dataIndex: 'currency', key: 'currency' },
         {
             title: 'Tahrirlash',
-            dataIndex: 'tahrirlash',
-            key: 'tahrirlash',
             render: (_, record) => (
                 <Button type='link' onClick={() => openEditDrawer(record)}>
                     Tahrirlash
@@ -205,7 +186,6 @@ const InputComponent = () => {
         },
         {
             title: "O'chirish",
-            key: "o'chirish",
             render: (_, record) => (
                 <Popconfirm
                     title="Bu ma'lumotni o'chirishni tasdiqlaysizmi?"
@@ -234,8 +214,8 @@ const InputComponent = () => {
             </h1>
             <Button
                 type='primary'
-                onClick={() => setAddDrawerVisible(true)}
-                className='ml-[90%]'>
+                onClick={() => setDrawerVisible(true)}
+                className='ml-[85%] mb-5'>
                 Qo'shish
             </Button>
 
@@ -251,59 +231,16 @@ const InputComponent = () => {
             )}
 
             <Drawer
-                title='Mahsulot qo‘shish'
+                title={
+                    editingRecord ? 'Mahsulot tahrirlash' : "Mahsulot qo'shish"
+                }
                 width={400}
-                onClose={() => setAddDrawerVisible(false)}
-                visible={addDrawerVisible}>
-                <Form layout='vertical' form={form} onFinish={handleAddInput}>
-                    <Form.Item
-                        name='product'
-                        label='Mahsulot nomi'
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Mahsulot nomini tanlang',
-                            },
-                        ]}>
-                        <Select
-                            showSearch
-                            placeholder='Mahsulot tanlang'
-                            notFoundContent={
-                                fetchingProducts ? <Spin /> : null
-                            }>
-                            {products.map((product) => (
-                                <Option key={product.id} value={product.name}>
-                                    {product.name}
-                                </Option>
-                            ))}
-                        </Select>
-                    </Form.Item>
-                    <Form.Item>
-                        <Button type='primary' htmlType='submit'>
-                            Qo'shish
-                        </Button>
-                    </Form.Item>
-                </Form>
-            </Drawer>
-
-            <Pagination
-                current={currentPage}
-                pageSize={pageSize}
-                total={inputList.length}
-                onChange={(page) => setCurrentPage(page)}
-                style={{
-                    textAlign: 'right',
-                    marginTop: '20px',
-                    justifyContent: 'end',
+                onClose={() => {
+                    setDrawerVisible(false);
+                    setEditingRecord(null);
                 }}
-            />
-
-            <Drawer
-                title='Mahsulot tahrirlash'
-                width={400}
-                onClose={() => setEditDrawerVisible(false)}
-                visible={editDrawerVisible}>
-                <Form layout='vertical' form={form} onFinish={handleEditInput}>
+                visible={drawerVisible}>
+                <Form layout='vertical' form={form} onFinish={handleFormSubmit}>
                     <Form.Item
                         name='product'
                         label='Mahsulot nomi'
@@ -326,13 +263,60 @@ const InputComponent = () => {
                             ))}
                         </Select>
                     </Form.Item>
+
+                    <Form.Item
+                        name='number'
+                        label='Soni'
+                        rules={[
+                            { required: true, message: 'Sonini kiriting' },
+                        ]}>
+                        <Input min={1} />
+                    </Form.Item>
+                    <Form.Item
+                        name='price'
+                        label='Narxi'
+                        rules={[
+                            { required: true, message: 'Narxini kiriting' },
+                        ]}>
+                        <Input min={0} step={0.01} />
+                    </Form.Item>
+                    <Form.Item
+                        name='currency_id'
+                        label='Currency ID'
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Iltimos, valyuta ID ni tanlang!',
+                            },
+                        ]}>
+                        <Select placeholder='ID tanlang'>
+                            <Option value={1}>$$</Option>
+                            <Option value={2}>Milliy valyuta</Option>
+                        </Select>
+                    </Form.Item>
+
                     <Form.Item>
-                        <Button type='primary' htmlType='submit'>
-                            Tahrirlash
+                        <Button
+                            type='primary'
+                            htmlType='submit'
+                            className='ml-[70%]'>
+                            {editingRecord ? 'Tahrirlash' : "Qo'shish"}
                         </Button>
                     </Form.Item>
                 </Form>
             </Drawer>
+
+            <Pagination
+                current={currentPage}
+                pageSize={pageSize}
+                total={inputList.length}
+                onChange={(page) => setCurrentPage(page)}
+                style={{
+                    textAlign: 'right',
+                    marginTop: '20px',
+                    marginLeft: '80%',
+                }}
+            />
         </div>
     );
 };

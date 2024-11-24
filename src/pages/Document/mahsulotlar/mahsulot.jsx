@@ -143,8 +143,8 @@ const Mahsulot = () => {
         { title: "So'm", dataIndex: 'narx_sum', key: 'narx_sum' },
         {
             title: 'Yaratilgan Sana',
-            dataIndex: 'created',
-            key: 'created',
+            dataIndex: 'yaratilgan_sana',
+            key: 'yaratilgan_sana',
             render: (text) => new Date(text).toLocaleDateString(), // Sana formatini o'zgartirish
         },
         {
