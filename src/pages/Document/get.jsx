@@ -163,16 +163,53 @@ const InputPro = () => {
         }
     };
 
-    const handleDelete = async (id) => {
-        try {
-            await axios.delete(`http://localhost:3000/input_pro/delete/${id}`);
-            message.success("Ma'lumot muvaffaqiyatli o'chirildi!");
-            fetchData();
-        } catch (error) {
-            console.error("Ma'lumotni o'chirishda xato:", error);
-            message.error("Ma'lumotni o'chirishda xato.");
-        }
-    };
+   const handleDelete = async (id) => {
+       try {
+           // Backendga DELETE so'rovini yuborish
+           const response = await axios.delete(
+               `http://localhost:3000/input_pro/delete/${id}`
+           );
+
+           if (response.status === 200 && response.data.success) {
+               const deletedData = response.data.deletedRecord;
+
+               // Muvaffaqiyatli xabar
+               message.success(
+                   response.data.message ||
+                       "Ma'lumot muvaffaqiyatli o'chirildi!"
+               );
+
+               // Jadvalni yangilash
+               fetchData();
+
+               // Konsolda o'chirilgan ma'lumotlarni ko'rsatish
+               console.log("O'chirilgan ma'lumot:", deletedData);
+
+               // Qo'shimcha interfeys yangilash (masalan, umumiy qiymatlarni o'zgartirish)
+               if (deletedData) {
+                   updateTotals(deletedData);
+               }
+           } else {
+               message.error(
+                   response.data.message ||
+                       "Ma'lumotni o'chirishda muammo yuz berdi."
+               );
+           }
+       } catch (error) {
+           console.error("Ma'lumotni o'chirishda xato:", error);
+
+           // Xatolikni foydalanuvchiga ko'rsatish
+           if (
+               error.response &&
+               error.response.data &&
+               error.response.data.message
+           ) {
+               message.error(`Xatolik: ${error.response.data.message}`);
+           } else {
+               message.error("Ma'lumotni o'chirishda xato yuz berdi.");
+           }
+       }
+   };
 
     const columns = [
         { title: 'ID', dataIndex: 'id', key: 'id' },
