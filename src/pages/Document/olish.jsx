@@ -22,7 +22,6 @@ const InputComponent = () => {
     const [product, setProduct] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 5;
-    const [totalNumber, setTotalNumber] = useState(0);
 
     const [form] = Form.useForm();
     const { id } = useParams();
@@ -39,11 +38,6 @@ const InputComponent = () => {
                 `http://localhost:3000/input/all/${id}`
             );
             setInputList(data.input || []);
-            const totalNum = data.input.reduce(
-                (acc, item) => acc + item.number,
-                0
-            );
-            setTotalNumber(totalNum);
         } catch (error) {
             console.error('Error fetching input data:', error);
             message.error('Error fetching input data');
@@ -54,49 +48,46 @@ const InputComponent = () => {
 
     const fetchProductsData = async () => {
         try {
-            const  response  = await axios.get(
+            const response = await axios.get(
                 'http://localhost:3000/input/product'
             );
             setProduct(response.data.input || []);
         } catch (error) {
             console.error('Error fetching products:', error);
             message.error('Error fetching products');
-        } finally {
         }
     };
-const handleAdd = async (values) => {
-    try {
-        console.log(id);
+    const handleAdd = async (values) => {
+        try {
+            const { product, number, price, currency } = values;
+            const parsedNumber = Number(number);
+            const parsedPrice = String(price);
 
-        const { product, number, price } = values;
+            let totalPrice = 0;
 
-        // Convert product to Number, and others to String
-        const parsedProduct = Number(product); // product ni Number qilish
-        const parsedNumber = String(number); // number ni String qilish
-        const parsedPrice = String(price); // price ni String qilish
-        const parsedStatus = String('1'); // status ni String qilib berish
+            // Faqat dollar yoki so'm qiymatini saqlash
+            if (currency === 'dollar') {
+                totalPrice = parsedPrice; // Dollar qiymatini saqlash
+            } else if (currency === 'sum') {
+                totalPrice = parsedPrice; // So'm qiymatini saqlash
+            }
 
-        console.log(parsedProduct, parsedNumber, parsedPrice, parsedStatus);
+            await axios.post(`http://localhost:3000/input/insert/${id}`, {
+                product_id: product,
+                number: parsedNumber,
+                price: totalPrice, // faqat kerakli valuta qiymatini yuborish
+                status: currency === 'dollar' ? 1 : 2,
+            });
 
-        // POST request yuborish, id parametrini yuboramiz
-        await axios.post(`http://localhost:3000/input/insert/${id}`, {
-            product: parsedProduct, // product Number bo'ladi
-            number: parsedNumber, // number String bo'ladi
-            price: parsedPrice, // price String bo'ladi
-            status: parsedStatus, // status String bo'ladi
-        });
-
-        message.success('Product successfully added!');
-        fetchInput(); // Jadvalni yangilash
-        setDrawerVisible(false); // Drawer ni yopish
-        form.resetFields(); // Formani tozalash
-    } catch (error) {
-        console.error('Error adding product:', error);
-        message.error('Error adding product');
-    }
-};
-
-
+            message.success('Product successfully added!');
+            fetchInput();
+            setDrawerVisible(false);
+            form.resetFields();
+        } catch (error) {
+            console.error('Error adding product:', error);
+            message.error('Error adding product');
+        }
+    };
 
     const handleDeleteInput = async (inputId) => {
         try {
@@ -114,12 +105,36 @@ const handleAdd = async (values) => {
             message.error('Error deleting product');
         }
     };
+    const calculateTotals = () => {
+        const exchangeRate = 11000; // 1 USD = 11,000 so'm
+        const totalNum = inputList.reduce((acc, item) => acc + item.number, 0);
 
+        const totalDollar = inputList
+            .filter((item) => item.status === 1)
+            .reduce((acc, item) => acc + parseFloat(item.price || 0), 0); // faqat dollar qiymatlari
+
+        const totalSum = inputList
+            .filter((item) => item.status === 2)
+            .reduce((acc, item) => acc + parseFloat(item.price || 0), 0); // faqat so'm qiymatlari
+
+        const totalObshiy = totalDollar + totalSum / exchangeRate;
+
+        return { totalNum, totalDollar, totalSum, totalObshiy };
+    };
     const columns = [
         { title: 'ID', dataIndex: 'id', key: 'id' },
         { title: 'Product', dataIndex: 'product', key: 'product' },
         { title: 'Number', dataIndex: 'number', key: 'number' },
-        { title: 'Price', dataIndex: 'price', key: 'price' },
+        {
+            title: 'Dollar',
+            render: (_, record) =>
+                record.status === 1 ? `$${record.price}` : '-',
+        },
+        {
+            title: 'So’m',
+            render: (_, record) =>
+                record.status === 2 ? `${record.price} so'm` : '-',
+        },
         {
             title: 'Delete',
             render: (_, record) => (
@@ -141,6 +156,8 @@ const handleAdd = async (values) => {
         currentPage * pageSize
     );
 
+    const totals = calculateTotals();
+
     return (
         <div>
             <h1
@@ -158,12 +175,31 @@ const handleAdd = async (values) => {
             {loading ? (
                 <Spin />
             ) : (
-                <Table
-                    columns={columns}
-                    dataSource={paginatedData}
-                    rowKey='id'
-                    pagination={false}
-                />
+                <>
+                    <Table
+                        columns={columns}
+                        dataSource={paginatedData}
+                        rowKey='id'
+                        pagination={{
+                            current: currentPage,
+                            pageSize: pageSize,
+                            total: inputList.length,
+                            onChange: (page) => setCurrentPage(page),
+                        }}
+                    />
+                    <div
+                        style={{
+                            display: 'flex',
+                            marginTop: '20px',
+                            justifyContent: 'space-evenly',
+                            fontWeight: 'bold',
+                            textAlign: 'center',
+                        }}>
+                        <p>Total Number: {totals.totalNum}</p>
+                        <p>Total Dollar: ${totals.totalDollar.toFixed(2)}</p>
+                        <p>Total So’m: {totals.totalSum.toFixed(2)} so'm</p>
+                    </div>
+                </>
             )}
 
             <Drawer
@@ -181,11 +217,7 @@ const handleAdd = async (values) => {
                                 message: 'Please select a product',
                             },
                         ]}>
-                        <Select
-                            showSearch
-                            placeholder='Select Product'
-                            
-                        >
+                        <Select showSearch placeholder='Select Product'>
                             {product.map((product) => (
                                 <Option key={product.id} value={product.id}>
                                     {product.name}
@@ -205,6 +237,7 @@ const handleAdd = async (values) => {
                         ]}>
                         <Input type='number' min={1} />
                     </Form.Item>
+
                     <Form.Item
                         name='price'
                         label='Price'
@@ -212,6 +245,21 @@ const handleAdd = async (values) => {
                             { required: true, message: 'Please enter price' },
                         ]}>
                         <Input type='number' min={0} step={0.01} />
+                    </Form.Item>
+
+                    <Form.Item
+                        name='currency'
+                        label='Currency'
+                        rules={[
+                            {
+                                required: true,
+                                message: 'Please select a currency',
+                            },
+                        ]}>
+                        <Select placeholder='Select Currency'>
+                            <Option value='dollar'>Dollar</Option>
+                            <Option value='sum'>So’m</Option>
+                        </Select>
                     </Form.Item>
 
                     <Form.Item>
