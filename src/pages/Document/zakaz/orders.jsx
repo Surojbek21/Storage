@@ -19,7 +19,7 @@ const { Option } = Select;
 const { Search } = Input;
 const { RangePicker } = DatePicker;
 
-const InputPro = () => {
+const Orders = () => {
     const [getData, setGetData] = useState([]);
     const [results, setResults] = useState([]);
     const [counterparty, setCounterparty] = useState([]);
@@ -40,7 +40,7 @@ const InputPro = () => {
         setLoading(true);
         try {
             const response = await axios.get(
-                'http://localhost:3000/input_pro/all1'
+                'http://localhost:3000/input_pro/all2'
             );
             const formattedData = response.data.input;
             setGetData(formattedData);
@@ -74,7 +74,7 @@ const InputPro = () => {
         setLoading(true);
         try {
             const response = await axios.get(
-                'http://localhost:3000/input_pro/search1',
+                'http://localhost:3000/input_pro/search2',
                 {
                     params: { name: searchValue },
                 }
@@ -123,13 +123,12 @@ const InputPro = () => {
     const handleChangePage = (page) => {
         setCurrentPage(page);
     };
-   const openDrawer = (record) => {
-       setEditMode(!!record); // Record bor-yo'qligiga qarab editMode o'rnatiladi
-       setEditingRecord(record); // Recordni tahrirlash uchun o'rnatish
-       form.setFieldsValue(record || {}); // Forma maydonlarini to'ldirish
-       setDrawerVisible(true); // Drawer ochiladi
-   };
-
+    const openDrawer = (record) => {
+        setEditMode(!!record); // Record bor-yo'qligiga qarab editMode o'rnatiladi
+        setEditingRecord(record); // Recordni tahrirlash uchun o'rnatish
+        form.setFieldsValue(record || {}); // Forma maydonlarini to'ldirish
+        setDrawerVisible(true); // Drawer ochiladi
+    };
 
     const closeDrawer = () => {
         setDrawerVisible(false);
@@ -199,23 +198,23 @@ const InputPro = () => {
         },
         {
             title: 'Product Soni',
-            dataIndex: 'status_1_product_soni',
-            key: 'status_1_product_soni',
+            dataIndex: 'status_2_product_soni',
+            key: 'status_2_product_soni',
         },
         {
             title: 'Jami soni',
-            dataIndex: 'status_1_jami_soni',
-            key: 'status_1_jami_soni',
+            dataIndex: 'status_2_jami_soni',
+            key: 'status_2_jami_soni',
         },
         {
             title: 'Dollar',
-            dataIndex: 'status_1_narx_dollar',
-            key: 'status_1_narx_dollar',
+            dataIndex: 'status_2_narx_dollar',
+            key: 'status_2_narx_dollar',
         },
         {
             title: 'Summa',
-            dataIndex: 'status_1_narx_sum',
-            key: 'status_1_narx_sum',
+            dataIndex: 'status_2_narx_sum',
+            key: 'status_2_narx_sum',
         },
         {
             title: 'Дата создания',
@@ -223,7 +222,7 @@ const InputPro = () => {
             key: 'yaratilgan_sana',
             render: (text) => new Date(text).toLocaleDateString(),
         },
-       
+
         {
             title: 'Удалить',
             key: 'delete',
@@ -333,4 +332,4 @@ const InputPro = () => {
     );
 };
 
-export default InputPro;
+export default Orders;

@@ -15,7 +15,7 @@ import { useParams } from 'react-router-dom';
 
 const { Option } = Select;
 
-const InputComponent = () => {
+const OrderTwo = () => {
     const [inputList, setInputList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [drawerVisible, setDrawerVisible] = useState(false);
@@ -71,19 +71,21 @@ const InputComponent = () => {
             message.error('Error fetching exchange rate');
         }
     };
-
     const handleAdd = async () => {
         try {
             const values = await form.validateFields();
             console.log('Form values:', values);
+
+            // Yangi mahsulotni yuborish
             await axios.post(`http://localhost:3000/input/insert/${id}`, {
                 ...values,
-                status: 1,
+                status: 2, // statusni 2 qilib yuborish
             });
+
             message.success('Product successfully added!');
-            fetchInput();
-            setDrawerVisible(false);
-            form.resetFields();
+            fetchInput(); // Yangi ma'lumotlarni yuklash
+            setDrawerVisible(false); // Drawer'ni yopish
+            form.resetFields(); // Formani tozalash
         } catch (error) {
             console.error('Error adding product:', error);
             message.error('Error adding product');
@@ -167,7 +169,7 @@ const InputComponent = () => {
     ];
 
     const paginatedData = inputList.slice(
-        (currentPage - 1) * pageSize,
+        (currentPage - 2) * pageSize,
         currentPage * pageSize
     );
 
@@ -279,4 +281,4 @@ const InputComponent = () => {
     );
 };
 
-export default InputComponent;
+export default OrderTwo;

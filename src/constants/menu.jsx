@@ -46,8 +46,8 @@ export const menu = [
             },
             {
                 id: 14,
-                title: 'Заказ поставщику',
-                path: '/zakaz',
+                title: 'Заказы',
+                path: '/orders',
             },
 
             {

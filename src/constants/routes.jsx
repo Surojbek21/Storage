@@ -6,6 +6,8 @@ import Currency from '../pages/Document/currency/currency';
 import Get from '../pages/Document/get';
 import Mahsulot from '../pages/Document/mahsulotlar/mahsulot';
 import InputComponent from '../pages/Document/olish';
+import Orders from '../pages/Document/zakaz/orders';
+import OrderTwo from '../pages/Document/zakaz/ordersTwo';
 
 export const menuList = [
    
@@ -49,4 +51,14 @@ export const menuList = [
         path: '/mahsulotlar',
         element: <Mahsulot />,
     },  
+    {
+        id:10,
+        path: '/orders',
+        element: <Orders />,
+    },
+    {
+        id:11,
+        path: '/orders',
+        element: <OrderTwo />,
+    }
 ];
