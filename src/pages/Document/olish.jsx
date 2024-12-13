@@ -67,8 +67,6 @@ const InputComponent = () => {
             );
             setExchangeRate(data.rate || 0);
         } catch (error) {
-            console.error('Error fetching exchange rate:', error);
-            message.error('Error fetching exchange rate');
         }
     };
 
@@ -165,7 +163,6 @@ const InputComponent = () => {
             ),
         },
     ];
-
     const paginatedData = inputList.slice(
         (currentPage - 1) * pageSize,
         currentPage * pageSize

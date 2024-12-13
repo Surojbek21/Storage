@@ -6,6 +6,8 @@ import Currency from '../pages/Document/currency/currency';
 import Get from '../pages/Document/get';
 import Mahsulot from '../pages/Document/mahsulotlar/mahsulot';
 import InputComponent from '../pages/Document/olish';
+import Return from '../pages/Document/return/return';
+import ReturnTwo from '../pages/Document/return/returnTwo';
 import Orders from '../pages/Document/zakaz/orders';
 import OrderTwo from '../pages/Document/zakaz/ordersTwo';
 
@@ -60,5 +62,15 @@ export const menuList = [
         id:11,
         path: '/orders/ordersTwo/:id',
         element: <OrderTwo />,
+    },
+    {
+        id: 12,
+        path: '/return',
+        element: <Return/>
+    },
+    {
+        id: 13,
+        path: '/return/return/:id',
+        element: <ReturnTwo/>
     }
 ];

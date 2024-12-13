@@ -45,15 +45,19 @@ export const menu = [
                 path: '/currency',
             },
             {
-                id: 14,
+                id: 12,
+                title: 'Получитъ',
+                path: '/get',
+            },
+            {
+                id: 13,
                 title: 'Заказы',
                 path: '/orders',
             },
-
             {
-                id: 15,
-                title: 'Получитъ',
-                path: '/get',
+                id: 14,
+                title: 'возврат',
+                path: '/return',
             },
         ],
     },

@@ -15,14 +15,14 @@ import { useParams } from 'react-router-dom';
 
 const { Option } = Select;
 
-const OrderTwo = () => {
+const ReturnTwo = () => {
     const [inputList, setInputList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [drawerVisible, setDrawerVisible] = useState(false);
     const [product, setProduct] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const [exchangeRate, setExchangeRate] = useState(0); // Exchange rate for dollar to so'm
     const pageSize = 5;
+    const [exchangeRate, setExchangeRate] = useState(0); // Exchange rate for dollar to so'm
 
     const [form] = Form.useForm();
     const { id } = useParams();
@@ -35,8 +35,6 @@ const OrderTwo = () => {
 
     const fetchInput = async () => {
         setLoading(true);
-        console.log(id);
-
         try {
             const { data } = await axios.get(
                 `http://localhost:3000/input/all/${id}`
@@ -61,6 +59,7 @@ const OrderTwo = () => {
             message.error('Error fetching products');
         }
     };
+
     const fetchExchangeRate = async () => {
         try {
             const { data } = await axios.get(
@@ -73,10 +72,10 @@ const OrderTwo = () => {
     const handleAdd = async () => {
         try {
             const values = await form.validateFields();
-            console.log('Form values:', values);
+            // console.log('Form values:', values);
             await axios.post(`http://localhost:3000/input/insert/${id}`, {
                 ...values,
-                status: 2,
+                status: 3,
             });
             message.success('Product successfully added!');
             fetchInput();
@@ -100,16 +99,16 @@ const OrderTwo = () => {
     };
     const totalUSD = inputList.reduce((sum, item) => {
         if (item.currency_id === 1) {
-            return sum + item.number * item.price; // Faqat USD mahsulotlarni hisoblash
+            return sum + item.number * item.price;
         }
         return sum;
     }, 0);
 
     const totalSOM = inputList.reduce((sum, item) => {
-        if (item.currency_id === 2) {
-            return sum + item.number * item.price; // Faqat so'm mahsulotlarni hisoblash
+        if (item.currency_id === 1) {
+            return sum + item.number * item.price * exchangeRate;
         }
-        return sum;
+        return sum + item.number * item.price;
     }, 0);
 
     const columns = [
@@ -126,6 +125,7 @@ const OrderTwo = () => {
             dataIndex: 'price',
             key: 'price',
         },
+
         {
             title: 'Total (USD)',
             key: 'total_usd',
@@ -138,15 +138,15 @@ const OrderTwo = () => {
             title: 'Total (So’m)',
             key: 'total_som',
             render: (_, record) => {
-                if (record.currency_id == 1) {
-                    const totalSom = record.price * exchangeRate; // Faqat narxni ishlatyapmiz
+                if (record.currency_id === 1) {
+                    const totalSom =
+                        record.number * record.price * exchangeRate;
                     return `${totalSom.toLocaleString()} so’m`;
                 }
-                const totalSom = record.price; // Faqat narxni ishlatyapmiz
+                const totalSom = record.number * record.price;
                 return `${totalSom.toLocaleString()} so’m`;
             },
         },
-
         {
             title: 'Delete',
             render: (_, record) => (
@@ -162,9 +162,8 @@ const OrderTwo = () => {
             ),
         },
     ];
-
     const paginatedData = inputList.slice(
-        (currentPage - 2) * pageSize,
+        (currentPage - 3) * pageSize,
         currentPage * pageSize
     );
 
@@ -276,4 +275,4 @@ const OrderTwo = () => {
     );
 };
 
-export default OrderTwo;
+export default ReturnTwo;

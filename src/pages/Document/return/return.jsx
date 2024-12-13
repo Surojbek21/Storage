@@ -19,7 +19,7 @@ const { Option } = Select;
 const { Search } = Input;
 const { RangePicker } = DatePicker;
 
-const InputPro = () => {
+const Return = () => {
     const [getData, setGetData] = useState([]);
     const [results, setResults] = useState([]);
     const [counterparty, setCounterparty] = useState([]);
@@ -40,7 +40,7 @@ const InputPro = () => {
         setLoading(true);
         try {
             const response = await axios.get(
-                'http://localhost:3000/input_pro/all1'
+                'http://localhost:3000/input_pro/all3'
             );
             const formattedData = response.data.input;
             setGetData(formattedData);
@@ -74,7 +74,7 @@ const InputPro = () => {
         setLoading(true);
         try {
             const response = await axios.get(
-                'http://localhost:3000/input_pro/search1',
+                'http://localhost:3000/input_pro/search3',
                 {
                     params: { name: searchValue },
                 }
@@ -123,13 +123,12 @@ const InputPro = () => {
     const handleChangePage = (page) => {
         setCurrentPage(page);
     };
-   const openDrawer = (record) => {
-       setEditMode(!!record); // Record bor-yo'qligiga qarab editMode o'rnatiladi
-       setEditingRecord(record); // Recordni tahrirlash uchun o'rnatish
-       form.setFieldsValue(record || {}); // Forma maydonlarini to'ldirish
-       setDrawerVisible(true); // Drawer ochiladi
-   };
-
+    const openDrawer = (record) => {
+        setEditMode(!!record); // Record bor-yo'qligiga qarab editMode o'rnatiladi
+        setEditingRecord(record); // Recordni tahrirlash uchun o'rnatish
+        form.setFieldsValue(record || {}); // Forma maydonlarini to'ldirish
+        setDrawerVisible(true); // Drawer ochiladi
+    };
 
     const closeDrawer = () => {
         setDrawerVisible(false);
@@ -197,31 +196,31 @@ const InputPro = () => {
             dataIndex: 'name',
             key: 'name',
             render: (link, a) => (
-                <Link to={`/get/olish/${a.id}`} state={{ id: a.id }}>
+                <Link to={`/orders/ordersTwo/${a.id}`} state={{ id: a.id }}>
                     {link}
                 </Link>
             ),
         },
         {
             title: 'Product Soni',
-            dataIndex: 'status_1_product_soni',
-            key: 'status_1_product_soni',
+            dataIndex: 'status_3_product_soni',
+            key: 'status_3_product_soni',
         },
         {
             title: 'Jami soni',
-            dataIndex: 'status_1_jami_soni',
-            key: 'status_1_jami_soni',
+            dataIndex: 'status_3_jami_soni',
+            key: 'status_3_jami_soni',
         },
         {
             title: 'Dollar',
-            dataIndex: 'status_1_narx_dollar',
-            key: 'status_1_narx_dollar',
+            dataIndex: 'status_3_narx_dollar',
+            key: 'status_3_narx_dollar',
             render: (value) => `$${value.toFixed(2)}`,
         },
         {
             title: 'Summa',
-            dataIndex: 'status_1_narx_sum',
-            key: 'status_1_narx_sum',
+            dataIndex: 'status_3_narx_sum',
+            key: 'status_3_narx_sum',
             render: (value) => `${value.toLocaleString()} so’m`,
         },
 
@@ -341,4 +340,4 @@ const InputPro = () => {
     );
 };
 
-export default InputPro;
+export default Return;

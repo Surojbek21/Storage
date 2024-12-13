@@ -215,12 +215,15 @@ const Orders = () => {
             title: 'Dollar',
             dataIndex: 'status_2_narx_dollar',
             key: 'status_2_narx_dollar',
+            render: (value) => `$${value.toFixed(2)}`,
         },
         {
             title: 'Summa',
             dataIndex: 'status_2_narx_sum',
             key: 'status_2_narx_sum',
+            render: (value) => `${value.toLocaleString()} so’m`,
         },
+
         {
             title: 'Дата создания',
             dataIndex: 'yaratilgan_sana',
