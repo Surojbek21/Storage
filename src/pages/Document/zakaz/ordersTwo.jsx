@@ -22,7 +22,6 @@ const OrderTwo = () => {
     const [product, setProduct] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const pageSize = 5;
-    const [exchangeRate, setExchangeRate] = useState(0); // Exchange rate for dollar to so'm
 
     const [form] = Form.useForm();
     const { id } = useParams();
@@ -30,11 +29,12 @@ const OrderTwo = () => {
     useEffect(() => {
         fetchInput();
         fetchProductsData();
-        fetchExchangeRate();
     }, []);
 
     const fetchInput = async () => {
         setLoading(true);
+        console.log(id);
+        
         try {
             const { data } = await axios.get(
                 `http://localhost:3000/input/all/${id}`
@@ -60,32 +60,18 @@ const OrderTwo = () => {
         }
     };
 
-    const fetchExchangeRate = async () => {
-        try {
-            const { data } = await axios.get(
-                'http://localhost:3000/exchange-rate'
-            );
-            setExchangeRate(data.rate || 0);
-        } catch (error) {
-            console.error('Error fetching exchange rate:', error);
-            message.error('Error fetching exchange rate');
-        }
-    };
     const handleAdd = async () => {
         try {
             const values = await form.validateFields();
             console.log('Form values:', values);
-
-            // Yangi mahsulotni yuborish
             await axios.post(`http://localhost:3000/input/insert/${id}`, {
                 ...values,
-                status: 2, // statusni 2 qilib yuborish
+                status: 2,
             });
-
             message.success('Product successfully added!');
-            fetchInput(); // Yangi ma'lumotlarni yuklash
-            setDrawerVisible(false); // Drawer'ni yopish
-            form.resetFields(); // Formani tozalash
+            fetchInput(); 
+            setDrawerVisible(false);
+            form.resetFields();
         } catch (error) {
             console.error('Error adding product:', error);
             message.error('Error adding product');
@@ -111,7 +97,7 @@ const OrderTwo = () => {
 
     const totalSOM = inputList.reduce((sum, item) => {
         if (item.currency_id === 1) {
-            return sum + item.number * item.price * exchangeRate;
+            return sum + item.number * item.price ;
         }
         return sum + item.number * item.price;
     }, 0);
@@ -145,7 +131,7 @@ const OrderTwo = () => {
             render: (_, record) => {
                 if (record.currency_id === 1) {
                     const totalSom =
-                        record.number * record.price * exchangeRate;
+                        record.number * record.price ;
                     return `${totalSom.toLocaleString()} so’m`;
                 }
                 const totalSom = record.number * record.price;

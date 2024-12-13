@@ -185,13 +185,18 @@ const Orders = () => {
     };
 
     const columns = [
-        { title: '№', dataIndex: 'id', key: 'id' },
+        {
+            title: '№',
+            dataIndex: 'index',
+            key: 'index',
+            render: (_, __, rowIndex) => rowIndex + 1,
+        },
         {
             title: 'Имя',
             dataIndex: 'name',
             key: 'name',
             render: (link, a) => (
-                <Link to={`/get/olish/${a.id}`} state={{ id: a.id }}>
+                <Link to={`/orders/ordersTwo/${a.id}`} state={{ id: a.id }}>
                     {link}
                 </Link>
             ),

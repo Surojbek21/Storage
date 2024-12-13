@@ -75,7 +75,7 @@ const InputComponent = () => {
     const handleAdd = async () => {
         try {
             const values = await form.validateFields();
-            console.log('Form values:', values);
+            // console.log('Form values:', values);
             await axios.post(`http://localhost:3000/input/insert/${id}`, {
                 ...values,
                 status: 1,

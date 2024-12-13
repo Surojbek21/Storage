@@ -58,7 +58,7 @@ export const menuList = [
     },
     {
         id:11,
-        path: '/orders',
+        path: '/orders/ordersTwo/:id',
         element: <OrderTwo />,
     }
 ];
