@@ -189,14 +189,15 @@ const Return = () => {
             title: '№',
             dataIndex: 'index',
             key: 'index',
-            render: (_, __, rowIndex) => rowIndex + 1,
+            render: (_, __, rowIndex) =>
+                (currentPage - 1) * pageSize + rowIndex + 1,
         },
         {
             title: 'Имя',
             dataIndex: 'name',
             key: 'name',
             render: (link, a) => (
-                <Link to={`/orders/ordersTwo/${a.id}`} state={{ id: a.id }}>
+                <Link to={`/return/return/${a.id}`} state={{ id: a.id }}>
                     {link}
                 </Link>
             ),

@@ -117,7 +117,8 @@ const InputComponent = () => {
             title: '№',
             dataIndex: 'index',
             key: 'index',
-            render: (_, __, rowIndex) => rowIndex + 1,
+            render: (_, __, rowIndex) =>
+                (currentPage - 1) * pageSize + rowIndex + 1,
         },
         { title: 'Product', dataIndex: 'product', key: 'product' },
         { title: 'Number', dataIndex: 'number', key: 'number' },

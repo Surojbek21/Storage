@@ -21,7 +21,8 @@ const OrderTwo = () => {
     const [drawerVisible, setDrawerVisible] = useState(false);
     const [product, setProduct] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
-    const [exchangeRate, setExchangeRate] = useState(0); // Exchange rate for dollar to so'm
+    const [exchangeRate, setExchangeRate] = useState(0);
+    const [priceList, setPriceList] = useState([]); 
     const pageSize = 5;
 
     const [form] = Form.useForm();
@@ -31,6 +32,7 @@ const OrderTwo = () => {
         fetchInput();
         fetchProductsData();
         fetchExchangeRate();
+        fetchPrice();
     }, []);
 
     const fetchInput = async () => {
@@ -69,6 +71,19 @@ const OrderTwo = () => {
             setExchangeRate(data.rate || 0);
         } catch (error) {}
     };
+
+    const fetchPrice = async () => {
+        try {
+            const response = await axios.get(
+                'http://localhost:3000/input/price'
+            );
+            setPriceList(response.data.input ); // Price ma'lumotlarini holatga saqlash
+        } catch (error) {
+            console.error('Error fetching price:', error);
+            message.error('Error fetching price');
+        }
+    };
+
 
     const handleAdd = async () => {
         try {
@@ -117,7 +132,8 @@ const OrderTwo = () => {
             title: '№',
             dataIndex: 'index',
             key: 'index',
-            render: (_, __, rowIndex) => rowIndex + 1,
+            render: (_, __, rowIndex) =>
+                (currentPage - 1) * pageSize + rowIndex + 1,
         },
         { title: 'Product', dataIndex: 'product', key: 'product' },
         { title: 'Number', dataIndex: 'number', key: 'number' },
@@ -240,7 +256,6 @@ const OrderTwo = () => {
                             ))}
                         </Select>
                     </Form.Item>
-
                     <Form.Item
                         name='number'
                         label='Quantity'
@@ -252,16 +267,32 @@ const OrderTwo = () => {
                         ]}>
                         <Input type='number' min={1} />
                     </Form.Item>
-
                     <Form.Item
                         name='price'
                         label='Price'
                         rules={[
-                            { required: true, message: 'Please enter price' },
+                            {
+                                required: true,
+                                message: 'Please select a price',
+                            },
                         ]}>
-                        <Input type='number' min={0} step={0.01} />
+                        <Select
+                            placeholder='Select Price'
+                            showSearch
+                            optionFilterProp='children'
+                            filterOption={(input, option) =>
+                                option.children
+                                    .toLowerCase()
+                                    .includes(input.toLowerCase())
+                            }>
+                            {price.map((price) => (
+                                <Option key={price.id} value={price.price}>
+                                    {price.name} - ${price.price}
+                                </Option>
+                            ))}
+                        </Select>
                     </Form.Item>
-
+                    ;
                     <Form.Item>
                         <Button
                             type='primary'

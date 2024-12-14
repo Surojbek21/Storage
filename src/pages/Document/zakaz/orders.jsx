@@ -189,7 +189,8 @@ const Orders = () => {
             title: '№',
             dataIndex: 'index',
             key: 'index',
-            render: (_, __, rowIndex) => rowIndex + 1,
+            render: (_, __, rowIndex) =>
+                (currentPage - 1) * pageSize + rowIndex + 1,
         },
         {
             title: 'Имя',
