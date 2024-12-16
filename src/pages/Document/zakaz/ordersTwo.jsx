@@ -19,10 +19,12 @@ const OrderTwo = () => {
     const [inputList, setInputList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [drawerVisible, setDrawerVisible] = useState(false);
-    const [product, setProduct] = useState([]);
+    const [product, setProduct] = useState([]); // Mahsulotlar ro'yxati
     const [currentPage, setCurrentPage] = useState(1);
     const [exchangeRate, setExchangeRate] = useState(0);
-    const [priceList, setPriceList] = useState([]); 
+    const [price, setPriceList] = useState([]); // Narxlar ro'yxati
+    const [selectedPrice, setSelectedPrice] = useState('');
+    const [selectedProduct, setSelectedProduct] = useState('');
     const pageSize = 5;
 
     const [form] = Form.useForm();
@@ -32,13 +34,11 @@ const OrderTwo = () => {
         fetchInput();
         fetchProductsData();
         fetchExchangeRate();
-        fetchPrice();
     }, []);
 
+    // Input ma'lumotlarini olish
     const fetchInput = async () => {
         setLoading(true);
-        console.log(id);
-
         try {
             const { data } = await axios.get(
                 `http://localhost:3000/input/all/${id}`
@@ -52,6 +52,7 @@ const OrderTwo = () => {
         }
     };
 
+    // Mahsulotlar ro'yxatini olish
     const fetchProductsData = async () => {
         try {
             const response = await axios.get(
@@ -63,32 +64,42 @@ const OrderTwo = () => {
             message.error('Error fetching products');
         }
     };
+
+   
+
+    // Mahsulot tanlanganda narxlarni yangilash
+    const handleProductChange = (productId) => {
+        const selectedProduct = product.find((item) => item.id === productId);
+        if (selectedProduct) {
+            const priceOptions = [
+                { id: 'price_1', name: `${selectedProduct.price_1} ` },
+                { id: 'price_2', name: `${selectedProduct.price_2} ` },
+                { id: 'price_3', name: `${selectedProduct.price_3} ` },
+            ].filter(
+                (price) => price.name !== 'Price: null' && price.name // Faqat to'g'ri qiymatlarni ko'rsatish
+            );
+            setPriceList(priceOptions); // Narxlarni yangilash
+        } else {
+            setPriceList([]); // Agar mahsulot tanlanmagan bo'lsa, narxlar bo'sh
+        }
+    };
+
+    // Kursni olish
     const fetchExchangeRate = async () => {
         try {
             const { data } = await axios.get(
                 'http://localhost:3000/exchange-rate'
             );
             setExchangeRate(data.rate || 0);
-        } catch (error) {}
-    };
-
-    const fetchPrice = async () => {
-        try {
-            const response = await axios.get(
-                'http://localhost:3000/input/price'
-            );
-            setPriceList(response.data.input ); // Price ma'lumotlarini holatga saqlash
         } catch (error) {
-            console.error('Error fetching price:', error);
-            message.error('Error fetching price');
+            console.error('Error fetching exchange rate:', error);
         }
     };
 
-
+    // Yangi mahsulot qo'shish
     const handleAdd = async () => {
         try {
             const values = await form.validateFields();
-            console.log('Form values:', values);
             await axios.post(`http://localhost:3000/input/insert/${id}`, {
                 ...values,
                 status: 2,
@@ -103,6 +114,7 @@ const OrderTwo = () => {
         }
     };
 
+    // Mahsulotni o'chirish
     const handleDeleteInput = async (id) => {
         try {
             await axios.delete(`http://localhost:3000/input/delete/${id}`);
@@ -113,20 +125,24 @@ const OrderTwo = () => {
             message.error('Error deleting product');
         }
     };
+
+    // USD bo'yicha umumiy summani hisoblash
     const totalUSD = inputList.reduce((sum, item) => {
         if (item.currency_id === 1) {
-            return sum + item.number * item.price; // Faqat USD mahsulotlarni hisoblash
+            return sum + item.number * item.price; // Faqat USD mahsulotlar
         }
         return sum;
     }, 0);
 
+    // So’m bo'yicha umumiy summani hisoblash
     const totalSOM = inputList.reduce((sum, item) => {
         if (item.currency_id === 2) {
-            return sum + item.number * item.price; // Faqat so'm mahsulotlarni hisoblash
+            return sum + item.number * item.price; // Faqat so’m mahsulotlar
         }
         return sum;
     }, 0);
 
+    // Jadval ustunlari
     const columns = [
         {
             title: '№',
@@ -137,11 +153,7 @@ const OrderTwo = () => {
         },
         { title: 'Product', dataIndex: 'product', key: 'product' },
         { title: 'Number', dataIndex: 'number', key: 'number' },
-        {
-            title: 'Price',
-            dataIndex: 'price',
-            key: 'price',
-        },
+        { title: 'Price', dataIndex: 'price', key: 'price' },
         {
             title: 'Total (USD)',
             key: 'total_usd',
@@ -154,15 +166,13 @@ const OrderTwo = () => {
             title: 'Total (So’m)',
             key: 'total_som',
             render: (_, record) => {
-                if (record.currency_id == 1) {
-                    const totalSom = record.price * exchangeRate; // Faqat narxni ishlatyapmiz
-                    return `${totalSom.toLocaleString()} so’m`;
-                }
-                const totalSom = record.price; // Faqat narxni ishlatyapmiz
+                const totalSom =
+                    record.currency_id === 1
+                        ? record.price * exchangeRate
+                        : record.price;
                 return `${totalSom.toLocaleString()} so’m`;
             },
         },
-
         {
             title: 'Delete',
             render: (_, record) => (
@@ -179,6 +189,7 @@ const OrderTwo = () => {
         },
     ];
 
+    // Paginatsiya uchun ma'lumotlar
     const paginatedData = inputList.slice(
         (currentPage - 2) * pageSize,
         currentPage * pageSize
@@ -226,6 +237,8 @@ const OrderTwo = () => {
                     )}
                 />
             )}
+
+            {/* Drawer for adding product */}
             <Drawer
                 title='Add Product'
                 width={400}
@@ -244,60 +257,59 @@ const OrderTwo = () => {
                         <Select
                             showSearch
                             placeholder='Select Product'
-                            filterOption={(input, option) =>
-                                option.children
-                                    .toLowerCase()
-                                    .includes(input.toLowerCase())
-                            }>
-                            {product.map((product) => (
-                                <Option key={product.id} value={product.id}>
-                                    {product.name}
+                            onChange={handleProductChange}>
+                            {product.map((prod) => (
+                                <Option key={prod.id} value={prod.id}>
+                                    {prod.name}
                                 </Option>
                             ))}
                         </Select>
-                    </Form.Item>
-                    <Form.Item
-                        name='number'
-                        label='Quantity'
-                        rules={[
-                            {
-                                required: true,
-                                message: 'Please enter quantity',
-                            },
-                        ]}>
-                        <Input type='number' min={1} />
                     </Form.Item>
                     <Form.Item
                         name='price'
                         label='Price'
                         rules={[
                             {
-                                required: true,
-                                message: 'Please select a price',
+                                required: false,
+                                message: 'Please select or enter a price',
                             },
                         ]}>
-                        <Select
-                            placeholder='Select Price'
-                            showSearch
-                            optionFilterProp='children'
-                            filterOption={(input, option) =>
-                                option.children
-                                    .toLowerCase()
-                                    .includes(input.toLowerCase())
-                            }>
-                            {price.map((price) => (
-                                <Option key={price.id} value={price.price}>
-                                    {price.name} - ${price.price}
-                                </Option>
-                            ))}
-                        </Select>
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <Select
+                                showSearch
+                                placeholder='Select Price'
+                                onChange={(value) => {
+                                    setSelectedPrice(value);
+                                }}>
+                                {price.map((option) => (
+                                    <Option key={option.id} >
+                                        {option.name}
+                                    </Option>
+                                ))}
+                            </Select>
+                            {!selectedPrice && (
+                                <Input
+                                    style={{ marginLeft: 10 }}
+                                    placeholder='Or enter price'
+                                    onChange={(e) => {
+                                        setSelectedPrice(e.target.value); //tepadagi usestatega bog'lanishi kerak
+                                    }}
+                                />
+                            )}
+                        </div>
                     </Form.Item>
-                    ;
+
+                    <Form.Item
+                        name='number'
+                        label='Number'
+                        rules={[
+                            { required: true, message: 'Please enter number' },
+                        ]}>
+                        <Input type='number' />
+                    </Form.Item>
+
                     <Form.Item>
-                        <Button
-                            type='primary'
-                            htmlType='submit'
-                            className='ml-[70%]'>
+                        <Button type='primary' htmlType='submit'>
                             Add
                         </Button>
                     </Form.Item>

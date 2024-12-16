@@ -197,7 +197,7 @@ const Orders = () => {
             dataIndex: 'name',
             key: 'name',
             render: (link, a) => (
-                <Link to={`/orders/ordersTwo/${a.id}`} state={{ id: a.id }}>
+                <Link to={`/orders/orders/${a.id}`} state={{ id: a.id }}>
                     {link}
                 </Link>
             ),

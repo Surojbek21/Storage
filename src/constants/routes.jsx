@@ -60,7 +60,7 @@ export const menuList = [
     },
     {
         id:11,
-        path: '/orders/ordersTwo/:id',
+        path: '/orders/orders/:id',
         element: <OrderTwo />,
     },
     {
